@@ -1,4 +1,4 @@
-package com.ericsson.addroneapplication.multicopter;
+package com.multicopter.java;
 
 /**
  * Created by ebarnaw on 2016-10-14.

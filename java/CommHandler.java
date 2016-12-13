@@ -1,12 +1,9 @@
-package com.ericsson.addroneapplication.multicopter;
+package com.multicopter.java;
 
-import android.util.Log;
-
-import com.ericsson.addroneapplication.multicopter.actions.*;
-import com.ericsson.addroneapplication.multicopter.data.SignalData;
-import com.ericsson.addroneapplication.multicopter.events.CommEvent;
-import com.ericsson.addroneapplication.multicopter.events.MessageEvent;
-import com.ericsson.addroneapplication.model.ConnectionInfo;
+import com.multicopter.java.actions.*;
+import com.multicopter.java.data.SignalData;
+import com.multicopter.java.events.CommEvent;
+import com.multicopter.java.events.MessageEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,9 +33,9 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
         this.runningTasks = new ArrayList<>();
     }
 
-    public void connectSocket(ConnectionInfo connectionInfo) {
+    public void connectSocket(String ipAddress, int port) {
         System.out.println("CommHandler: connectSocket");
-        commInterface.connect(connectionInfo);
+        commInterface.connect(ipAddress, port);
     }
 
     public void disconnectSocket() {
@@ -176,7 +173,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
                     break;
 
                 case WAITING:
-                    Log.e(getTaskName(), "CommHandler: Ping receiving timeout");
+                    System.out.println("CommHandler: Ping receiving timeout");
                     state = PingTaskState.CONFIRMED;
                     break;
             }
@@ -189,7 +186,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
             state = PingTaskState.CONFIRMED;
             return (System.currentTimeMillis() - timestamp) / 2;
         } else {
-            Log.e(pingTask.getTaskName(), "CommHandler: Pong key does not match to the ping key!");
+            System.out.println("CommHandler: Pong key does not match to the ping key!");
             return 0;
         }
     }

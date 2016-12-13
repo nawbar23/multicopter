@@ -1,4 +1,4 @@
-package com.ericsson.addroneapplication.multicopter.data;
+package com.multicopter.java.data;
 
 /**
  * Created by nbar on 2016-09-02.

@@ -1,8 +1,6 @@
-package com.ericsson.addroneapplication.multicopter.data;
+package com.multicopter.java.data;
 
-import android.util.Log;
-
-import com.ericsson.addroneapplication.multicopter.CommMessage;
+import com.multicopter.java.CommMessage;
 
 import java.nio.ByteBuffer;
 
@@ -18,7 +16,6 @@ import java.nio.ByteBuffer;
  * - battery voltage [volts]
  */
 public class DebugData {
-    private static final String DEBUG_TAG = "AdDrone:" + DebugData.class.getSimpleName();
 
     private float roll, pitch, yaw;
 
@@ -126,7 +123,7 @@ public class DebugData {
         try {
             return flags.getFlagState(id.getValue());
         } catch (Exception e) {
-            Log.e(DEBUG_TAG, e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -135,7 +132,7 @@ public class DebugData {
         try {
             flags.setFlagsState(id.getValue(), state);
         } catch (Exception e) {
-            Log.e(DEBUG_TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 

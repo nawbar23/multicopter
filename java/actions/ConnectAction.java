@@ -1,13 +1,13 @@
-package com.ericsson.addroneapplication.multicopter.actions;
+package com.multicopter.java.actions;
 
-import com.ericsson.addroneapplication.multicopter.data.CalibrationSettings;
-import com.ericsson.addroneapplication.multicopter.data.SignalData;
-import com.ericsson.addroneapplication.multicopter.events.CommEvent;
-import com.ericsson.addroneapplication.multicopter.CommHandler;
-import com.ericsson.addroneapplication.multicopter.events.SignalPayloadEvent;
-import com.ericsson.addroneapplication.multicopter.UavEvent;
+import com.multicopter.java.CommHandler;
+import com.multicopter.java.UavEvent;
+import com.multicopter.java.data.CalibrationSettings;
+import com.multicopter.java.data.SignalData;
+import com.multicopter.java.events.CommEvent;
+import com.multicopter.java.events.SignalPayloadEvent;
 
-import static com.ericsson.addroneapplication.multicopter.actions.CommHandlerAction.ActionType.CONNECT;
+import static com.multicopter.java.actions.CommHandlerAction.ActionType.CONNECT;
 
 /**
  * Created by ebarnaw on 2016-10-13.

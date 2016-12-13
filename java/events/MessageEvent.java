@@ -1,6 +1,6 @@
-package com.ericsson.addroneapplication.multicopter.events;
+package com.multicopter.java.events;
 
-import com.ericsson.addroneapplication.multicopter.CommMessage;
+import com.multicopter.java.CommMessage;
 
 /**
  * Created by NawBar on 2016-10-12.

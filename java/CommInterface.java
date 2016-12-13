@@ -1,6 +1,4 @@
-package com.ericsson.addroneapplication.multicopter;
-
-import com.ericsson.addroneapplication.model.ConnectionInfo;
+package com.multicopter.java;
 
 import java.io.IOException;
 
@@ -16,7 +14,7 @@ public abstract class CommInterface {
         this.listener = listener;
     }
 
-    public abstract void connect(ConnectionInfo connectionInfo);
+    public abstract void connect(String ipAddress, int port);
 
     public abstract void disconnect();
 

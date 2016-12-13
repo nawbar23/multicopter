@@ -1,8 +1,8 @@
-package com.ericsson.addroneapplication.multicopter;
+package com.multicopter.java;
 
-import com.ericsson.addroneapplication.multicopter.data.*;
-import com.ericsson.addroneapplication.multicopter.events.MessageEvent;
-import com.ericsson.addroneapplication.multicopter.events.SignalPayloadEvent;
+import com.multicopter.java.data.*;
+import com.multicopter.java.events.MessageEvent;
+import com.multicopter.java.events.SignalPayloadEvent;
 
 /**
  * Created by nawba on 16.10.2016.

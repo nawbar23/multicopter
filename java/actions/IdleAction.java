@@ -1,9 +1,9 @@
-package com.ericsson.addroneapplication.multicopter.actions;
+package com.multicopter.java.actions;
 
-import com.ericsson.addroneapplication.multicopter.events.CommEvent;
-import com.ericsson.addroneapplication.multicopter.CommHandler;
+import com.multicopter.java.CommHandler;
+import com.multicopter.java.events.CommEvent;
 
-import static com.ericsson.addroneapplication.multicopter.actions.CommHandlerAction.ActionType.IDLE;
+import static com.multicopter.java.actions.CommHandlerAction.ActionType.IDLE;
 
 /**
  * Created by NawBar on 2016-10-12.

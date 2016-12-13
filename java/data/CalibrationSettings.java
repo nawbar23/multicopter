@@ -1,6 +1,6 @@
-package com.ericsson.addroneapplication.multicopter.data;
+package com.multicopter.java.data;
 
-import com.ericsson.addroneapplication.multicopter.CommMessage;
+import com.multicopter.java.CommMessage;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

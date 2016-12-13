@@ -1,13 +1,16 @@
-package com.ericsson.addroneapplication.multicopter.actions;
+package com.multicopter.java.actions;
 
-import com.ericsson.addroneapplication.multicopter.CommHandler;
-import com.ericsson.addroneapplication.multicopter.CommTask;
-import com.ericsson.addroneapplication.multicopter.data.ControlData;
-import com.ericsson.addroneapplication.multicopter.data.DebugData;
-import com.ericsson.addroneapplication.multicopter.data.SignalData;
-import com.ericsson.addroneapplication.multicopter.events.CommEvent;
-import com.ericsson.addroneapplication.multicopter.events.MessageEvent;
-import com.ericsson.addroneapplication.multicopter.UavEvent;
+import com.multicopter.java.CommHandler;
+import com.multicopter.java.CommTask;
+import com.multicopter.java.UavEvent;
+import com.multicopter.java.data.ControlData;
+import com.multicopter.java.data.DebugData;
+import com.multicopter.java.data.SignalData;
+import com.multicopter.java.events.CommEvent;
+import com.multicopter.java.events.MessageEvent;
+
+import static com.multicopter.java.CommMessage.MessageType.CONTROL;
+import static com.multicopter.java.CommMessage.MessageType.SIGNAL;
 
 /**
  * Created by ebarnaw on 2016-10-14.
@@ -143,7 +146,7 @@ public class FlightLoopAction extends CommHandlerAction {
 
         @Override
         protected void task() {
-            ControlData controlData = commHandler.getUavManager().getControlViewModel().getCurrentControlData();
+            ControlData controlData = commHandler.getUavManager().getCurrentControlData();
             if (state == FlightLoopState.BREAKING) {
                 controlData.setStopCommand();
             }

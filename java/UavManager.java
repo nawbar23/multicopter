@@ -1,8 +1,7 @@
-package com.ericsson.addroneapplication.multicopter;
+package com.multicopter.java;
 
-import com.ericsson.addroneapplication.multicopter.actions.CommHandlerAction;
-import com.ericsson.addroneapplication.multicopter.data.*;
-import com.ericsson.addroneapplication.viewmodel.ControlViewModel;
+import com.multicopter.java.actions.CommHandlerAction;
+import com.multicopter.java.data.*;
 
 import java.util.ArrayList;
 
@@ -34,8 +33,6 @@ public class UavManager {
     // main communication handler
     private CommHandler commHandler;
 
-    private ControlViewModel controlViewModel;
-
     public UavManager(CommInterface commInterface) {
         this.listeners = new ArrayList<>();
         this.commDelay = 0;
@@ -45,6 +42,11 @@ public class UavManager {
 
     public CommHandler getCommHandler() {
         return commHandler;
+    }
+
+    public ControlData getCurrentControlData() {
+        // TODO fix this and get control data from controller
+        return new ControlData();
     }
 
     public void disconnectApplicationLoop() {
@@ -112,14 +114,6 @@ public class UavManager {
 
     public void unregisterListener(UavManagerListener listener) {
         listeners.remove(listener);
-    }
-
-    public void setControlViewModel(ControlViewModel controlViewModel) {
-        this.controlViewModel = controlViewModel;
-    }
-
-    public ControlViewModel getControlViewModel() {
-        return controlViewModel;
     }
 
     public interface UavManagerListener {
