@@ -33,6 +33,8 @@ public class UavManager {
     // main communication handler
     private CommHandler commHandler;
 
+    private ControlDataSource controlDataSource;
+
     public UavManager(CommInterface commInterface) {
         this.listeners = new ArrayList<>();
         this.commDelay = 0;
@@ -44,9 +46,12 @@ public class UavManager {
         return commHandler;
     }
 
+    public void setControlDataSource(ControlDataSource controlDataSource) {
+        this.controlDataSource = controlDataSource;
+    }
+
     public ControlData getCurrentControlData() {
-        // TODO fix this and get control data from controller
-        return new ControlData();
+        return controlDataSource.getControlData();
     }
 
     public void disconnectApplicationLoop() {
@@ -193,5 +198,9 @@ public class UavManager {
 
     public void setCommHandler(CommHandler commHandler) {
         this.commHandler = commHandler;
+    }
+
+    public interface ControlDataSource {
+        ControlData getControlData();
     }
 }
