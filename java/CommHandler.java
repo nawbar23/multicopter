@@ -21,6 +21,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
     private UavManager uavManager;
 
     private List<CommTask> runningTasks;
+    
 
     public CommHandler(UavManager uavManager, CommInterface commInterface){
         this.commHandlerAction = new IdleAction(this);
