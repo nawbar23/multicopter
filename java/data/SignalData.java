@@ -169,21 +169,22 @@ public class SignalData {
         START(1000011),
         ACK(1000012),
         DATA_ACK(1000013),
+        ENTER_DFU(1000014),
 
-        BREAK(1000014),
-        BREAK_ACK(1000015),
-        BREAK_FAIL(1000016),
+        BREAK(1000015),
+        BREAK_ACK(1000016),
+        BREAK_FAIL(1000017),
 
-        DONE(1000017),
-        READY(1000018),
-        FAIL(1000019),
-        SKIP(1000020),
+        DONE(1000018),
+        READY(1000019),
+        FAIL(1000020),
+        SKIP(1000021),
 
-        NON_STATIC(1000021),
-        NOT_ALLOWED(1000022),
+        NON_STATIC(1000022),
+        NOT_ALLOWED(1000023),
 
-        BAD_CRC(1000023),
-        TIMEOUT(1000024);
+        BAD_CRC(1000024),
+        TIMEOUT(1000025);
 
         private final int value;
 
@@ -200,6 +201,7 @@ public class SignalData {
             else if (value == START.getValue()) return START;
             else if (value == ACK.getValue()) return ACK;
             else if (value == DATA_ACK.getValue()) return DATA_ACK;
+            else if (value == ENTER_DFU.getValue()) return ENTER_DFU;
             else if (value == BREAK.getValue()) return BREAK;
             else if (value == BREAK_ACK.getValue()) return BREAK_ACK;
             else if (value == BREAK_FAIL.getValue()) return BREAK_FAIL;
