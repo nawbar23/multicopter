@@ -1,6 +1,7 @@
 package com.multicopter.java;
 
 import com.multicopter.java.data.*;
+import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
 import com.multicopter.java.events.SignalPayloadEvent;
 
@@ -29,9 +30,9 @@ public class CommDispatcher {
     private int signalDataPacketsToReceive;
     private int signalDataPacketsReceived;
 
-    private CommHandler commHandler;
+    private CommDispatcherListener commHandler;
 
-    public CommDispatcher(CommHandler commHandler) {
+    public CommDispatcher(CommDispatcherListener commHandler) {
         this.commHandler = commHandler;
         reset();
     }
@@ -237,5 +238,9 @@ public class CommDispatcher {
 
     public int getSuccessfulReceptionCounter() {
         return successfulReceptionCounter;
+    }
+
+    public interface CommDispatcherListener {
+        void handleCommEvent(CommEvent event);
     }
 }

@@ -111,7 +111,7 @@ public class CommMessage {
         }
     }
 
-    public static ArrayList<CommMessage> buildMessagesList(final SignalData.Command dataCommand, final byte[] dataArray) throws Exception {
+    public static ArrayList<CommMessage> buildMessagesList(final SignalData.Command dataCommand, final byte[] dataArray) {
         ArrayList<CommMessage> result = new ArrayList<>();
 
         final short messagesCount = (short)((double)dataArray.length / CommMessage.SIGNAL_DATA_PAYLOAD_SIZE + 0.99999);

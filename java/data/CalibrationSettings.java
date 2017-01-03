@@ -74,7 +74,7 @@ public class CalibrationSettings implements SignalPayloadData {
         return data.crcValue == CommMessage.computeCrc32(data.serialize());
     }
 
-    public ArrayList<CommMessage> getMessages() throws Exception {
+    public ArrayList<CommMessage> getMessages() {
         return CommMessage.buildMessagesList(getDataType(), data.serialize());
     }
 

@@ -12,7 +12,8 @@ import java.util.List;
 /**
  * Created by NawBar on 2016-10-12.
  */
-public class CommHandler implements CommInterface.CommInterfaceListener {
+public class CommHandler implements CommInterface.CommInterfaceListener,
+        CommDispatcher.CommDispatcherListener {
 
     private CommHandlerAction commHandlerAction;
     private CommInterface commInterface;
@@ -58,6 +59,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
         }
     }
 
+    @Override
     public void handleCommEvent(CommEvent event){
         System.out.println("CommHandler: Event " + event.toString() + " received at action " + commHandlerAction.toString());
 
