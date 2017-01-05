@@ -3,6 +3,7 @@ package com.multicopter.java.data;
 import com.multicopter.java.CommMessage;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Created by nbar on 2016-08-22.
@@ -30,7 +31,7 @@ public class DebugData {
     private byte battery;
 
     public DebugData() {
-
+        this.flags = new Flags(8);
     }
 
     public DebugData(final CommMessage message) {
@@ -158,7 +159,21 @@ public class DebugData {
     }
 
     public CommMessage getMessage() {
-        return null;
+        byte[] payload = new byte[CommMessage.getPayloadSizeByType(CommMessage.MessageType.CONTROL)];
+        ByteBuffer buffer = ByteBuffer.allocate(payload.length);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.putFloat(getRoll());
+        buffer.putFloat(getPitch());
+        buffer.putFloat(getYaw());
+        buffer.putFloat(getLatitude());
+        buffer.putFloat(getLongitude());
+        buffer.putFloat(getRelativeAltitude());
+        buffer.putFloat(getVLoc());
+        buffer.putShort(getControllerState().getValue());
+        buffer.put((byte)flags.getFlags());
+        buffer.put(battery);
+        System.arraycopy(buffer.array(), 0, payload, 0, payload.length);
+        return new CommMessage(CommMessage.MessageType.CONTROL, payload);
     }
 
     public enum ControllerState {

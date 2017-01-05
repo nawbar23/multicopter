@@ -158,7 +158,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
 
     private PingTaskState state = PingTaskState.CONFIRMED;
 
-    private CommTask pingTask = new CommTask(this, 0.5) {
+    private CommTask pingTask = new CommTask(0.5) {
 
         @Override
         protected String getTaskName() {
