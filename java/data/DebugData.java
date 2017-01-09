@@ -43,7 +43,7 @@ public class DebugData {
         this.relativeAltitude = debugData.getRelativeAltitude();
         this.vLoc = debugData.getVLoc();
         this.controllerState = debugData.getControllerState();
-        this.flags.setFlags(debugData.getFlags());
+        this.flags = new Flags(8, debugData.getFlags());
         this.battery = debugData.getBattery();
     }
 
