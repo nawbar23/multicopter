@@ -44,11 +44,17 @@ public class CalibrationSettings implements SignalPayloadData {
         altimeterSetting = 1013.2f;
         temperatureSetting = 288.15f;
         crcValue = computeCrc();
-
-        System.out.println(crcValue);
     }
 
     public CalibrationSettings(final byte[] dataArray) {
+        gyroOffset = new float[3];
+        accelCalib = new float[9];
+        magnetSoft = new float[9];
+        magnetHard = new float[3];
+        radioLevels = new float[16];
+        pwmInputLevels = new byte[8];
+        flags = new Flags(32);
+
         ByteBuffer buffer = ByteBuffer.wrap(dataArray);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
