@@ -44,7 +44,8 @@ public class ControlData {
         this.roll = buffer.getFloat();
         this.pitch= buffer.getFloat();
         this.yaw = buffer.getFloat();
-        this.command = ControllerCommand.getControllerCommand((short)(buffer.get() & 0xff));
+        this.throttle = buffer.getFloat();
+        this.command = ControllerCommand.getControllerCommand(buffer.getShort());
         this.mode = SolverMode.getSolverMode(buffer.get());
     }
 
@@ -106,10 +107,13 @@ public class ControlData {
 
     @Override
     public String toString() {
-        // TODO format this string for better presentation
-        String result = "Rotation: roll: " + String.valueOf(roll) + " pitch: " + String.valueOf(pitch) + " yaw: " + String.valueOf(yaw);
-        result += (", Controller command: " + command.toString() + " solver mode: " + mode.toString());
-        return result;
+        return "ControlData:[ roll: " + String.valueOf(roll)
+                + ", pitch: " + String.valueOf(pitch)
+                + ", yaw: " + String.valueOf(yaw)
+                + ", throttle: " + String.valueOf(throttle)
+                + ", Controller command: " + command.toString() + "(" + String.valueOf(command.getValue()) + ")"
+                + ", solver mode: " + mode.toString() + "(" + String.valueOf(mode.getValue()) + ")"
+                + " ]";
     }
 
     public CommMessage getMessage() {

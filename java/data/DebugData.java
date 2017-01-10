@@ -177,11 +177,14 @@ public class DebugData {
 
     @Override
     public String toString() {
-        // TODO format this string for better presentation
-        String result = "Rotation: roll: " + String.valueOf(roll) + " pitch: " + String.valueOf(pitch) + " yaw: " + String.valueOf(yaw);
-        result += (", Position: lat: " + String.valueOf(latitude) + " lon: " + String.valueOf(longitude) + " alt: " + String.valueOf(relativeAltitude));
-        result += (", Controller state: " + controllerState.toString() + "(" + String.valueOf(controllerState.getValue()) + ")");
-        return result;
+        return "DebugData:[ roll: " + String.valueOf(roll)
+                + ", pitch: " + String.valueOf(pitch)
+                + ", yaw: " + String.valueOf(yaw)
+                + ", lat: " + String.valueOf(latitude)
+                + ", lon: " + String.valueOf(longitude)
+                + ", alt: " + String.valueOf(relativeAltitude)
+                + ", Controller state: " + controllerState.toString() + "(" + String.valueOf(controllerState.getValue()) + ")"
+                + " ]";
     }
 
     public CommMessage getMessage() {
