@@ -34,7 +34,6 @@ public class Flags {
         if (id > size) {
             throw new Exception("Id to get flag state out of range!");
         }
-        System.out.println(String.valueOf(flags));
         return (flags & (1 << id)) != 0;
     }
 
