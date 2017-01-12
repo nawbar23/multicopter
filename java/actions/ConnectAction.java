@@ -78,13 +78,18 @@ public class ConnectAction extends CommHandlerAction {
                         && ((SignalPayloadEvent)event).getDataType() == SignalData.Command.CALIBRATION_SETTINGS_DATA) {
                     SignalPayloadEvent signalEvent = (SignalPayloadEvent)event;
 
-                    state = ConnectState.FINAL_COMMAND;
-                    System.out.println("Calibration settings received after adHoc calibration");
-                    commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.ACK).getMessage());
-                    commHandler.getUavManager().setCalibrationSettings(((CalibrationSettings)signalEvent.getData()));
-
-                    // send final start command
-                    commHandler.send(new SignalData(SignalData.Command.APP_LOOP, SignalData.Parameter.START).getMessage());
+                    CalibrationSettings calibrationSettings = (CalibrationSettings)signalEvent.getData();
+                    if (calibrationSettings.isValid()) {
+                        System.out.println("Calibration settings received after adHoc calibration");
+                        state = ConnectState.FINAL_COMMAND;
+                        commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.ACK).getMessage());
+                        commHandler.getUavManager().setCalibrationSettings(calibrationSettings);
+                        // send final start command
+                        commHandler.send(new SignalData(SignalData.Command.APP_LOOP, SignalData.Parameter.START).getMessage());
+                    } else {
+                        System.out.println("Calibration settings received but the data is invalid, responding with BAD_CRC");
+                        commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.BAD_CRC).getMessage());
+                    }
                 } else {
                     System.out.println("Unexpected event received at state " + state.toString());
                 }

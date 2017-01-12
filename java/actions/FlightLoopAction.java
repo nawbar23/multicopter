@@ -79,7 +79,7 @@ public class FlightLoopAction extends CommHandlerAction {
                                 commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Flight loop not allowed!"));
 
                             } else {
-                                System.out.println("Unexpected event received !!!");
+                                System.out.println("Unexpected event received!!!");
                             }
                             break;
                     }
