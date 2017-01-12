@@ -76,6 +76,18 @@ public class UavManager {
         }
     }
 
+    public void startMagnetometerCalibration() {
+        notifyUavEvent(new UavEvent(UavEvent.Type.MAGENT_CALIB_STARTED));
+    }
+
+    public void doneMagnetometerCalibration() {
+
+    }
+
+    public void cancelMagnetometerCalibration() {
+
+    }
+
     private void preformAction(CommHandlerAction.ActionType actionType) {
         try {
             commHandler.preformAction(actionType);

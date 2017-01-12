@@ -18,6 +18,7 @@ public class UavEvent {
         PING_UPDATED,
         FLIGHT_STARTED,
         FLIGHT_ENDED,
+        MAGENT_CALIB_STARTED,
     }
 
     private Type type;
