@@ -8,6 +8,7 @@ import com.multicopter.java.data.DebugData;
 import com.multicopter.java.data.SignalData;
 import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
+import com.multicopter.java.events.UserEvent;
 
 import static com.multicopter.java.CommMessage.MessageType.CONTROL;
 import static com.multicopter.java.CommMessage.MessageType.SIGNAL;
@@ -46,10 +47,6 @@ public class FlightLoopAction extends CommHandlerAction {
         flightLoopDone = false;
         state = FlightLoopState.INITIAL_COMMAND;
         commHandler.send(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.START).getMessage());
-    }
-
-    public void breakLoop() {
-        state = FlightLoopState.BREAKING;
     }
 
     @Override
@@ -130,6 +127,13 @@ public class FlightLoopAction extends CommHandlerAction {
             } else {
                 commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_ENDED, "By board"));
             }
+        }
+    }
+
+    @Override
+    public void notifyUserEvent(UserEvent userEvent) {
+        if (userEvent.getType() == UserEvent.Type.END_FLIGHT_LOOP) {
+            state = FlightLoopState.BREAKING;
         }
     }
 

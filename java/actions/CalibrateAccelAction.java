@@ -115,6 +115,6 @@ public class CalibrateAccelAction extends CommHandlerAction {
 
     @Override
     public ActionType getActionType() {
-        return ActionType.CALIBRATE_ACCELEROMETER;
+        return ActionType.ACCELEROMETER_CALIBRATION;
     }
 }

@@ -5,6 +5,10 @@ package com.multicopter.java.data;
  */
 public class ControlSettings implements SignalPayloadData {
 
+    public ControlSettings() {
+
+    }
+
     public ControlSettings(final byte[] dataArray) {
 
     }

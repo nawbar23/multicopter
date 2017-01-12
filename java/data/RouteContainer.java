@@ -5,6 +5,10 @@ package com.multicopter.java.data;
  */
 public class RouteContainer implements SignalPayloadData {
 
+    public RouteContainer() {
+
+    }
+
     public RouteContainer(final byte[] dataArray) {
 
     }

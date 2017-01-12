@@ -2,8 +2,10 @@ package com.multicopter.java;
 
 import com.multicopter.java.actions.*;
 import com.multicopter.java.data.SignalData;
+import com.multicopter.java.data.SignalPayloadData;
 import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
+import com.multicopter.java.events.UserEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,29 +42,41 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
         commInterface.connect(ipAddress, port);
     }
 
-    public void disconnectSocket() {
+    void disconnectSocket() {
         System.out.println("CommHandler: disconnectSocket");
         stopAllTasks();
         commInterface.disconnect();
     }
 
-    public void endFlightLoop() {
-        ((FlightLoopAction)commHandlerAction).breakLoop();
-    }
-
-    public void preformAction(CommHandlerAction.ActionType actionType) throws Exception {
+    void preformAction(CommHandlerAction.ActionType actionType) throws Exception {
         if (commHandlerAction.isActionDone()){
-            commHandlerAction = actionFactory(actionType);
+            commHandlerAction = actionFactory(actionType, null);
             commHandlerAction.start();
         } else {
             throw new Exception("CommHandler: Previous action not ready at state: " + commHandlerAction.getActionName() + ", aborting...");
         }
     }
 
+    void preformActionUpload(CommHandlerAction.ActionType actionType, SignalPayloadData dataToUpload) throws Exception {
+        if (commHandlerAction.isActionDone()){
+            commHandlerAction = actionFactory(actionType, dataToUpload);
+            commHandlerAction.start();
+        } else {
+            throw new Exception("CommHandler: Previous action not ready at state: " + commHandlerAction.getActionName() + ", aborting...");
+        }
+    }
+
+    void notifyUserEvent(UserEvent userEvent) throws Exception {
+        if (commHandlerAction.getActionType() == userEvent.getOwnerAction()) {
+            commHandlerAction.notifyUserEvent(userEvent);
+        } else {
+            throw new Exception("Owner of user event is different than ongoing action, could not handel it");
+        }
+    }
+
     @Override
     public void handleCommEvent(CommEvent event){
         System.out.println("CommHandler: Event " + event.toString() + " received at action " + commHandlerAction.toString());
-
         switch (event.getType()) {
             case MESSAGE_RECEIVED:
                 if (((MessageEvent)event).getMessageType() == CommMessage.MessageType.SIGNAL) {
@@ -104,7 +118,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
         }
     }
 
-    private CommHandlerAction actionFactory(CommHandlerAction.ActionType actionType) throws Exception {
+    private CommHandlerAction actionFactory(CommHandlerAction.ActionType actionType, SignalPayloadData data) throws Exception {
         switch (actionType){
             case IDLE:
                 return new IdleAction(this);
@@ -116,7 +130,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
                 return new AppLoopAction(this);
             case FLIGHT_LOOP:
                 return new FlightLoopAction(this);
-            case CALIBRATE_ACCELEROMETER:
+            case ACCELEROMETER_CALIBRATION:
                 return new CalibrateAccelAction(this);
 
             default:
