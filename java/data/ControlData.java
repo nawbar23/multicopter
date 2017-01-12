@@ -171,6 +171,7 @@ public class ControlData {
             else if (value == HOLD_POSITION.getValue()) return HOLD_POSITION;
             else if (value == BACK_TO_BASE.getValue()) return BACK_TO_BASE;
             else if (value == VIA_ROUTE.getValue()) return VIA_ROUTE;
+            else if (value == STOP.getValue()) return STOP;
             else if (value == ERROR_CONNECTION.getValue()) return ERROR_CONNECTION;
             else if (value == ERROR_JOYSTICK.getValue()) return ERROR_JOYSTICK;
             else return ERROR_EXTERNAL; // TODO throw some exception
