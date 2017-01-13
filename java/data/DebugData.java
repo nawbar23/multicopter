@@ -4,6 +4,8 @@ import com.multicopter.java.CommMessage;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Created by nbar on 2016-08-22.
@@ -240,18 +242,12 @@ public class DebugData {
         }
 
         static public ControllerState getControllerState(short value) {
-            if (value == IDLE.getValue()) return IDLE;
-            else if (value == MANUAL.getValue()) return MANUAL;
-            else if (value == AUTOLANDING.getValue()) return AUTOLANDING;
-            else if (value == AUTOLANDING_AP.getValue()) return AUTOLANDING_AP;
-            else if (value == HOLD_ALTITUDE.getValue()) return HOLD_ALTITUDE;
-            else if (value == HOLD_POSITION.getValue()) return HOLD_POSITION;
-            else if (value == BACK_TO_BASE.getValue()) return BACK_TO_BASE;
-            else if (value == VIA_ROUTE.getValue()) return VIA_ROUTE;
-            else if (value == STOP.getValue()) return STOP;
-            else if (value == APPLICATION_LOOP.getValue()) return APPLICATION_LOOP;
-            else if (value == ERROR_CONNECTION.getValue()) return ERROR_CONNECTION;
-            else return IDLE; // TODO throw some exception
+            for (ControllerState controllerState : ControllerState.values()) {
+                if (controllerState.getValue() == value) {
+                    return controllerState;
+                }
+            }
+            return IDLE; // TODO throw some exception
         }
 
         @Override

@@ -20,7 +20,7 @@ public class CalibrationSettings implements SignalPayloadData {
     private float temperatureSetting;
     private float[] radioLevels; // Mat4Df
     private byte[] pwmInputLevels; // 8 params
-    private int boardType;
+    private int boardTypeValue;
     private Flags flags;
     private int crcValue;
 
@@ -43,6 +43,9 @@ public class CalibrationSettings implements SignalPayloadData {
 
         altimeterSetting = 1013.2f;
         temperatureSetting = 288.15f;
+
+        boardTypeValue = BoardType.TYPE_UNKNOWN.getValue();
+
         crcValue = computeCrc();
     }
 
@@ -81,7 +84,7 @@ public class CalibrationSettings implements SignalPayloadData {
             pwmInputLevels[i] = buffer.get();
         }
 
-        boardType = buffer.getInt();
+        boardTypeValue = buffer.getInt();
         flags.setFlags(buffer.getInt());
         crcValue = buffer.getInt();
     }
@@ -136,7 +139,7 @@ public class CalibrationSettings implements SignalPayloadData {
             buffer.put(pwmInputLevel);
         }
 
-        buffer.putInt(boardType);
+        buffer.putInt(boardTypeValue);
         buffer.putInt(flags.getFlags());
         buffer.putInt(crcValue);
 
@@ -176,11 +179,56 @@ public class CalibrationSettings implements SignalPayloadData {
         return pwmInputLevels;
     }
 
-    public int getBoardType() {
-        return boardType;
+    public BoardType getBoardType() {
+        return BoardType.getBoardType(boardTypeValue);
     }
 
     public Flags getFlags() {
         return flags;
+    }
+
+    public enum BoardType
+    {
+        TYPE_UNKNOWN(0),
+        TYPE_ULTIMATE_V4(4),
+        TYPE_ULTIMATE_V5(5),
+        TYPE_BASIC_V1(101),
+        TYPE_BASIC_V2(102),
+        TYPE_BASIC_V3(103);
+
+        private final int value;
+
+        BoardType(int value){
+            this.value = value;
+        }
+
+        int getValue(){
+            return value;
+        }
+
+        public static BoardType getBoardType(final int value) {
+            for (BoardType boardType : BoardType.values()) {
+                if (boardType.getValue() == value) {
+                    return boardType;
+                }
+            }
+            return TYPE_UNKNOWN; // TODO throw some exception
+        }
+    }
+
+    public enum FlagId
+    {
+        IS_GPS_CONNECTED(0),
+        IS_EXTERNAL_MAGNETOMETER_USED(1);
+
+        private final int value;
+
+        FlagId(int value){
+            this.value = value;
+        }
+
+        int getValue(){
+            return value;
+        }
     }
 }

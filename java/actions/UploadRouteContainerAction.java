@@ -1,14 +1,14 @@
 package com.multicopter.java.actions;
 
 import com.multicopter.java.CommHandler;
-import com.multicopter.java.data.ControlSettings;
+import com.multicopter.java.data.RouteContainer;
 import com.multicopter.java.events.CommEvent;
 
 /**
- * Created by nawbar on 12.01.2017.
+ * Created by nawba on 12.01.2017.
  */
 
-public class UploadControlSettings extends CommHandlerAction {
+public class UploadRouteContainerAction extends CommHandlerAction {
 
     public enum UploadState {
         IDLE,
@@ -17,12 +17,12 @@ public class UploadControlSettings extends CommHandlerAction {
 
     private UploadState state;
 
-    private ControlSettings controlSettingsToUpload;
+    private RouteContainer routeContainerToUpload;
 
-    public UploadControlSettings(CommHandler commHandler, ControlSettings controlSettingsToUpload) {
+    public UploadRouteContainerAction(CommHandler commHandler, RouteContainer routeContainerToUpload) {
         super(commHandler);
         this.state = UploadState.IDLE;
-        this.controlSettingsToUpload = controlSettingsToUpload;
+        this.routeContainerToUpload = routeContainerToUpload;
     }
 
     @Override
@@ -42,6 +42,6 @@ public class UploadControlSettings extends CommHandlerAction {
 
     @Override
     public ActionType getActionType() {
-        return ActionType.UPLOAD_CONTROL_SETTINGS;
+        return ActionType.UPLOAD_ROUTE_CONTAINER;
     }
 }

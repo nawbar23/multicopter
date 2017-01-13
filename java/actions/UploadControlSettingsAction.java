@@ -1,28 +1,33 @@
 package com.multicopter.java.actions;
 
 import com.multicopter.java.CommHandler;
+import com.multicopter.java.data.ControlSettings;
 import com.multicopter.java.events.CommEvent;
 
 /**
  * Created by nawbar on 12.01.2017.
  */
 
-public class DownloadControlSettings extends CommHandlerAction {
+public class UploadControlSettingsAction extends CommHandlerAction {
 
-    private enum DownloadState {
+    public enum UploadState {
         IDLE,
+
     }
 
-    private DownloadState state;
+    private UploadState state;
 
-    public DownloadControlSettings(CommHandler commHandler) {
+    private ControlSettings controlSettingsToUpload;
+
+    public UploadControlSettingsAction(CommHandler commHandler, ControlSettings controlSettingsToUpload) {
         super(commHandler);
-        this.state = DownloadState.IDLE;
+        this.state = UploadState.IDLE;
+        this.controlSettingsToUpload = controlSettingsToUpload;
     }
 
     @Override
     public void start() {
-        // TODO send initial command - SignalData(???ACTION???, START)
+
     }
 
     @Override
@@ -32,11 +37,11 @@ public class DownloadControlSettings extends CommHandlerAction {
 
     @Override
     public void handleEvent(CommEvent event) throws Exception {
-        // TODO handle communication events and proceed state machine
+
     }
 
     @Override
     public ActionType getActionType() {
-        return ActionType.DOWNLOAD_CONTROL_SETTINGS;
+        return ActionType.UPLOAD_CONTROL_SETTINGS;
     }
 }
