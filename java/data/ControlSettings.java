@@ -18,7 +18,7 @@ public class ControlSettings implements SignalPayloadData {
     private int manualThrottleMode;
 
     // auto landing settings
-    private float autoLandingDescedRate;
+    private float autoLandingDescendRate;
     private float maxAutoLandingTime;
 
     // control values
@@ -27,14 +27,14 @@ public class ControlSettings implements SignalPayloadData {
 
     // regulator control settings
     // stabilization
-    private float[] pidRollRate, pidPitchRate, pidYawRate;
+    private float[] pidRollRate, pidPitchRate, pidYawRate; // Vect3Df
     // angle
     private float rollProp, pitchProp, yawProp;
 
     // throttle controller settings
     private float altPositionProp;
     private float altVelocityProp;
-    private float[] pidThrottleAccel;
+    private float[] pidThrottleAccel; // Vect3Df
 
     // throttle controller stick settings
     private float throttleAltRateProp;
@@ -44,7 +44,7 @@ public class ControlSettings implements SignalPayloadData {
     private float maxAutoVelocity;
     private float autoPositionProp;
     private float autoVelocityProp;
-    private float[] pidAutoAccel;
+    private float[] pidAutoAccel; // Vect3Df
 
     // autopilot stick settings
     private float stickPositionRateProp;
@@ -60,7 +60,7 @@ public class ControlSettings implements SignalPayloadData {
     private int escPwmFreq;
 
     // gps sensors position in rigid body coordinate system
-    private float[] gpsSensorPosition;
+    private float[] gpsSensorPosition; // Vect3Df
 
     // flags for any boolean settings
     private Flags flags;
@@ -83,7 +83,7 @@ public class ControlSettings implements SignalPayloadData {
         rollProp = 0.0f;
         pitchProp = 0.0f;
         yawProp = 0.0f;
-        autoLandingDescedRate = 0.0f;
+        autoLandingDescendRate = 0.0f;
         maxAutoLandingTime = 0.0f;
         maxRollPitchControlValue = 0.0f;
         maxYawControlValue = 0.0f;
@@ -267,5 +267,128 @@ public class ControlSettings implements SignalPayloadData {
         int getValue(){
             return value;
         }
+    }
+
+    public int getUavType() {
+        // TODO fix it, should return ENUM
+        return uavType;
+    }
+
+    public int getInitialSolverMode() {
+        // TODO fix it, should return ENUM
+        return initialSolverMode;
+    }
+
+    public int getManualThrottleMode() {
+        // TODO fix it, should return ENUM
+        return manualThrottleMode;
+    }
+
+    public float getAutoLandingDescendRate() {
+        return autoLandingDescendRate;
+    }
+
+    public float getMaxAutoLandingTime() {
+        return maxAutoLandingTime;
+    }
+
+    public float getMaxRollPitchControlValue() {
+        return maxRollPitchControlValue;
+    }
+
+    public float getMaxYawControlValue() {
+        return maxYawControlValue;
+    }
+
+    public float[] getPidRollRate() {
+        return pidRollRate;
+    }
+
+    public float[] getPidPitchRate() {
+        return pidPitchRate;
+    }
+
+    public float[] getPidYawRate() {
+        return pidYawRate;
+    }
+
+    public float getRollProp() {
+        return rollProp;
+    }
+
+    public float getPitchProp() {
+        return pitchProp;
+    }
+
+    public float getYawProp() {
+        return yawProp;
+    }
+
+    public float getAltPositionProp() {
+        return altPositionProp;
+    }
+
+    public float getAltVelocityProp() {
+        return altVelocityProp;
+    }
+
+    public float[] getPidThrottleAccel() {
+        return pidThrottleAccel;
+    }
+
+    public float getThrottleAltRateProp() {
+        return throttleAltRateProp;
+    }
+
+    public float getMaxAutoAngle() {
+        return maxAutoAngle;
+    }
+
+    public float getMaxAutoVelocity() {
+        return maxAutoVelocity;
+    }
+
+    public float getAutoPositionProp() {
+        return autoPositionProp;
+    }
+
+    public float getAutoVelocityProp() {
+        return autoVelocityProp;
+    }
+
+    public float[] getPidAutoAccel() {
+        return pidAutoAccel;
+    }
+
+    public float getStickPositionRateProp() {
+        return stickPositionRateProp;
+    }
+
+    public int getStickMovementMode() {
+        // TODO fix it, should return ENUM
+        return stickMovementMode;
+    }
+
+    public int getBatteryType() {
+        // TODO fix it, should return ENUM
+        return batteryType;
+    }
+
+    public int getErrorHandlingAction() {
+        // TODO fix it, should return ENUM
+        return errorHandlingAction;
+    }
+
+    public int getEscPwmFreq() {
+        // TODO fix it, should return ENUM
+        return escPwmFreq;
+    }
+
+    public float[] getGpsSensorPosition() {
+        return gpsSensorPosition;
+    }
+
+    public Flags getFlags() {
+        return flags;
     }
 }

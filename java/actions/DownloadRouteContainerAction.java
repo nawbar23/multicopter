@@ -7,7 +7,7 @@ import com.multicopter.java.events.CommEvent;
  * Created by nawbar on 12.01.2017.
  */
 
-public class DownloadControlSettings extends CommHandlerAction {
+public class DownloadRouteContainerAction extends CommHandlerAction {
 
     private enum DownloadState {
         IDLE,
@@ -15,7 +15,7 @@ public class DownloadControlSettings extends CommHandlerAction {
 
     private DownloadState state;
 
-    public DownloadControlSettings(CommHandler commHandler) {
+    public DownloadRouteContainerAction(CommHandler commHandler) {
         super(commHandler);
         this.state = DownloadState.IDLE;
     }
@@ -37,6 +37,6 @@ public class DownloadControlSettings extends CommHandlerAction {
 
     @Override
     public ActionType getActionType() {
-        return ActionType.DOWNLOAD_CONTROL_SETTINGS;
+        return ActionType.DOWNLOAD_ROUTE_CONTAINER;
     }
 }

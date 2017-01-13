@@ -13,10 +13,30 @@ import java.util.Arrays;
 public class RouteContainer implements SignalPayloadData {
 
     public class Waypoint {
-        double latitude, longintude;
-        float absoluteAltitude;
-        float relativeAltitude;
-        float velocity;
+        public double latitude, longintude;
+        public float absoluteAltitude;
+        public float relativeAltitude;
+        public float velocity;
+
+        public Waypoint() {
+        }
+
+        public Waypoint(final byte[] dataArray) {
+
+            // TODO implement deserialization
+
+        }
+
+        public byte[] serialize() {
+            byte[] dataArray = new byte[getDataArraySize()];
+            ByteBuffer buffer = ByteBuffer.allocate(dataArray.length);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+
+            // TODO implement serialization
+
+            System.arraycopy(buffer.array(), 0, dataArray, 0, dataArray.length);
+            return dataArray;
+        }
     }
 
     private int routeSize;
@@ -65,7 +85,7 @@ public class RouteContainer implements SignalPayloadData {
 
     private int getDataArraySize() {
         // whole route container size is "Constraint"(16b) + routeSize*"Waypoint"(28b)
-        return 16 + routeSize*getWaypointDataSize();
+        return 16 + routeSize * getWaypointDataSize();
     }
 
     public byte[] serialize() {
@@ -91,5 +111,21 @@ public class RouteContainer implements SignalPayloadData {
     public void addWaypoint(Waypoint waypoint) {
         route.add(waypoint);
         routeSize++;
+    }
+
+    public float getWaypointTime() {
+        return waypointTime;
+    }
+
+    public float getBaseTime() {
+        return baseTime;
+    }
+
+    public void setWaypointTime(float waypointTime) {
+        this.waypointTime = waypointTime;
+    }
+
+    public void setBaseTime(float baseTime) {
+        this.baseTime = baseTime;
     }
 }
