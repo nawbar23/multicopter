@@ -10,9 +10,6 @@ import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
 import com.multicopter.java.events.UserEvent;
 
-import static com.multicopter.java.CommMessage.MessageType.CONTROL;
-import static com.multicopter.java.CommMessage.MessageType.SIGNAL;
-
 /**
  * Created by ebarnaw on 2016-10-14.
  */
