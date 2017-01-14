@@ -85,10 +85,11 @@ public:
 	bool sendDataProcedure(const ISignalPayloadMessage& data);
 	bool receiveDataProcedure(ISignalPayloadMessage& data);
 
+	virtual void holdThread(const unsigned miliseconds) = 0;
+
 protected:
     virtual void resetTimer(void) = 0;
     virtual unsigned getTimerValue(void) = 0;
-    virtual void sleep(const unsigned miliseconds) = 0;
 
 private:
 	bool sendSignalData(const unsigned char* data, const unsigned dataSize, const SignalData::Command type);

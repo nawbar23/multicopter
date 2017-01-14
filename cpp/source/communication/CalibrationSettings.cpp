@@ -11,17 +11,17 @@ CalibrationSettings::CalibrationSettings(void)
 
 CalibrationSettings::CalibrationSettings(const unsigned char* src)
 {
-	memcpy((unsigned char*)this + 8, src, getDataSize());
+	memcpy((unsigned char*)this + 4, src, getDataSize());
 }
 
 void CalibrationSettings::serialize(unsigned char* dst) const
 {
-	memcpy(dst, (unsigned char*)this + 8, getDataSize());
+	memcpy(dst, (unsigned char*)this + 4, getDataSize());
 }
 
 unsigned CalibrationSettings::getDataSize(void) const
 {
-	return sizeof(CalibrationSettings) - 8;
+	return sizeof(CalibrationSettings) - 4;
 }
 
 SignalData::Command CalibrationSettings::getSignalDataType(void) const
@@ -34,6 +34,11 @@ SignalData::Command CalibrationSettings::getSignalDataCommand(void) const
 	return SignalData::CALIBRATION_SETTINGS;
 }
 
+IMessage::MessageType CalibrationSettings::getMessageType(void) const
+{
+    return CALIBRATION_SETTINGS;
+}
+
 CalibrationSettings CalibrationSettings::createDefault(void)
 {
 	CalibrationSettings calibData;
@@ -43,8 +48,8 @@ CalibrationSettings CalibrationSettings::createDefault(void)
 	calibData.magnetHard = Vect3Df();
 	calibData.altimeterSetting = (float)roboLib::normPressure;
 	calibData.temperatureSetting = (float)roboLib::normTemperature;
-	calibData.radioLevels = SetDefaultRadioLevels();
-	calibData.SetDefaultPwmInputMap();
+	calibData.radioLevels = getDefaultRadioLevels();
+	calibData.setDefaultPwmInputMap();
 	calibData.boardType = TYPE_UNKNOWN;
 	calibData.flags = 0;
 	calibData.setCrc();
@@ -60,6 +65,7 @@ bool CalibrationSettings::isValid(void) const
 	case TYPE_ULTIMATE_V5:
 	case TYPE_BASIC_V1:
 	case TYPE_BASIC_V2:
+	case TYPE_BASIC_V3:
 		break;
 	default:
 		return false;
@@ -79,7 +85,7 @@ void CalibrationSettings::setCrc(void)
 	crcValue = IMessage::computeCrc32(dataTab, getDataSize() - 4);
 }
 
-Mat4Df CalibrationSettings::SetDefaultRadioLevels(void)
+Mat4Df CalibrationSettings::getDefaultRadioLevels(void)
 {
 	Mat4Df inputLevels;
 
@@ -110,7 +116,7 @@ Mat4Df CalibrationSettings::SetDefaultRadioLevels(void)
 	return inputLevels;
 }
 
-void CalibrationSettings::SetDefaultPwmInputMap(void)
+void CalibrationSettings::setDefaultPwmInputMap(void)
 {
 	for (unsigned char i = 0; i<8; i++)
 	{
@@ -118,12 +124,10 @@ void CalibrationSettings::SetDefaultPwmInputMap(void)
 	}
 }
 
-void CalibrationSettings::SetPwmInputMap(char* map)
+void CalibrationSettings::setPwmInputMap(char* map)
 {
 	for (unsigned i = 0; i < 8; i++)
 	{
 		this->pwmInputMapData[i] = map[i];
 	}
 }
-
-#endif //__MULTICOPTER_USER_APP__

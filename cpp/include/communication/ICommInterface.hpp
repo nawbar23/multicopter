@@ -7,6 +7,8 @@
 class ICommInterface
 {
 public:
+    virtual void disconnect() = 0;
+
 	// sets pointer to oldest object in reception buffer and moves cartrige to next element
 	// if there is no data in buffer or reception is ongoing - returns false
 	virtual bool getData(unsigned char* data) = 0;
@@ -20,7 +22,7 @@ public:
 	virtual bool isConnected(void) const
 	{
 		return connected;
-	}
+    }
 
 	ICommInterface(void)
 	{

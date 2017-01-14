@@ -12,17 +12,17 @@ ControlSettings::ControlSettings(void)
 
 ControlSettings::ControlSettings(const unsigned char* src)
 {
-	memcpy((unsigned char*)this + 8, src, getDataSize());
+	memcpy((unsigned char*)this + 4, src, getDataSize());
 }
 
 void ControlSettings::serialize(unsigned char* dst) const
 {
-	memcpy(dst, (unsigned char*)this + 8, getDataSize());
+	memcpy(dst, (unsigned char*)this + 4, getDataSize());
 }
 
 unsigned ControlSettings::getDataSize(void) const
 {
-	return sizeof(ControlSettings) - 8;
+	return sizeof(ControlSettings) - 4;
 }
 
 SignalData::Command ControlSettings::getSignalDataType(void) const
@@ -33,6 +33,11 @@ SignalData::Command ControlSettings::getSignalDataType(void) const
 SignalData::Command ControlSettings::getSignalDataCommand(void) const
 {
 	return SignalData::CONTROL_SETTINGS;
+}
+
+IMessage::MessageType ControlSettings::getMessageType(void) const
+{
+    return CONTROL_SETTINGS;
 }
 
 bool ControlSettings::isValid(void) const
@@ -194,4 +199,55 @@ ControlData ControlSettings::formatEulers(const ControlData& controlData) const
 	return result;
 }
 
-#endif //__MULTICOPTER_USER_APP__
+ControlSettings ControlSettings::createDefault(void)
+{
+	ControlSettings defaultControlSettings;
+	defaultControlSettings.rollProp = 0.0f;
+	defaultControlSettings.pitchProp = 0.0f;
+	defaultControlSettings.yawProp = 0.0f;
+	defaultControlSettings.autoLandingDescedRate = 0.0f;
+	defaultControlSettings.maxAutoLandingTime = 0.0f;
+	defaultControlSettings.maxRollPitchControlValue = 0.0f;
+	defaultControlSettings.maxYawControlValue = 0.0f;
+
+	// throttle controller
+	defaultControlSettings.altPositionProp = 0.0f;
+	defaultControlSettings.altVelocityProp = 0.0f;
+	defaultControlSettings.throttleAltRateProp = 0.0f;
+
+	// autopilot
+	defaultControlSettings.autoPositionProp = 0.0f;
+	defaultControlSettings.autoVelocityProp = 0.0f;
+	defaultControlSettings.maxAutoAngle = 0.0f;
+	defaultControlSettings.maxAutoVelocity = 0.0f;
+	defaultControlSettings.stickPositionRateProp = 0.0f;
+	defaultControlSettings.stickMovementMode = COPTER;
+
+	defaultControlSettings.batteryType = UNDEFINED;
+
+	defaultControlSettings.errorHandlingAction = DebugData::AUTOLANDING;
+
+	defaultControlSettings.escPwmFreq = MEDIUM;
+
+	defaultControlSettings.gpsSensorPosition = Vect3Df();
+
+	defaultControlSettings.flags = 0;
+
+	return defaultControlSettings;
+}
+
+bool ControlSettings::isUavBisymetricalFromData(void) const
+{
+	return (rollProp == pitchProp && pidRollRate == pidPitchRate);
+}
+
+ControlData ControlSettings::getControlDataForLogs(const ControlData& controlData) const
+{
+	ControlData result(controlData);
+	Vect3Df resultEuler;
+	resultEuler.x *= maxRollPitchControlValue;
+	resultEuler.y *= maxRollPitchControlValue;
+	resultEuler.z *= maxYawControlValue;
+	result.setEuler(resultEuler);
+	return result;
+}

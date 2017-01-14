@@ -4,7 +4,7 @@
 #ifndef __AUTOPILOT_DATA__
 #define __AUTOPILOT_DATA__
 
-#include "roboLibCore.hpp"
+#include "MathCore.hpp"
 
 #include "IMessage.hpp"
 
@@ -19,6 +19,8 @@ public:
 	PreambleType getPreambleType(void) const;
 
 	void serialize(unsigned char* dst) const;
+
+    MessageType getMessageType(void) const;
 
 	unsigned getDataSize() const;
 

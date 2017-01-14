@@ -4,25 +4,39 @@
 #ifndef __ROUTE_CONTAINER__
 #define __ROUTE_CONTAINER__
 
-#include "IXmlParcable.hpp"
 #include "ISignalPayloadMessage.hpp"
+
 #include "SignalData.hpp"
+#include "Waypoint.hpp"
 
-#include "Waypoint.h"
-
-class RouteContainer : public ISignalPayloadMessage, public IXmlParcable
+class RouteContainer : public ISignalPayloadMessage
 {
 public:
+	struct Constraint
+	{
+		unsigned crcValue;
+		unsigned routeSize;
+		float waypointTime; // [s]
+		float baseTime; // [s]
+	};
+
+	Constraint constraint;
+	Waypoint* route;
+
 	RouteContainer(void);
 	RouteContainer(const unsigned char* src);
 	RouteContainer(const RouteContainer& routeContainer);
+	RouteContainer(const Waypoint* const _route, const unsigned _routeSize,
+		const float _waypointTime, const float _baseTime);
 
-	virtual void serialize(unsigned char* dst) const;
+	void serialize(unsigned char* dst) const;
 
 	unsigned getDataSize() const;
 
 	SignalData::Command getSignalDataType(void) const;
 	SignalData::Command getSignalDataCommand(void) const;
+
+    MessageType getMessageType(void) const;
 
 	bool isValid(void) const;
 
@@ -50,25 +64,11 @@ public:
 
 	RouteContainer& operator=(const RouteContainer& right);
 
-	virtual ~RouteContainer(void);
+	~RouteContainer(void);
 
 	static unsigned getConstraintBinarySize(void);
 	static unsigned getMaxRouteSize(void);
 	static unsigned getMaxRouteContainerBinarySize(void);
-
-private:
-	struct Constraint
-	{
-		unsigned crcValue;
-
-		unsigned routeSize;
-
-		float waypointTime; // [s]
-		float baseTime; // [s]
-	};
-
-	Constraint constraint;
-	Waypoint* route;
 };
 
 #endif // __ROUTE_CONTAINER__

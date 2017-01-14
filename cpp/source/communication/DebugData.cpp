@@ -6,17 +6,6 @@ DebugData::DebugData(void)
 {
 }
 
-DebugData::DebugData(const StateVector& stateVector)
-{
-	flagsObj.getFlagsVector() = 0;
-	euler = stateVector.getEulerAngles();
-	position = Vect2Df(stateVector.getPosition());
-	altitude = stateVector.getRelativeAltitude();
-	velocity = stateVector.getVLoc().getVect2D().getNorm();
-	setGpsFlags(stateVector.gpsFix);
-	setBatteryVoltage(stateVector.batteryVoltage);
-}
-
 DebugData::DebugData(const unsigned char* src)
 {
 	memcpy((unsigned char*)this + 4, src, getDataSize());
@@ -30,6 +19,11 @@ IMessage::PreambleType DebugData::getPreambleType(void) const
 void DebugData::serialize(unsigned char* dst) const
 {
 	memcpy(dst, (unsigned char*)this + 4, getDataSize());
+}
+
+IMessage::MessageType DebugData::getMessageType(void) const
+{
+    return DEBUG_DATA;
 }
 
 unsigned DebugData::getDataSize(void) const
@@ -122,19 +116,19 @@ Flags<unsigned char>& DebugData::flags(void)
 	return flagsObj;
 }
 
-void DebugData::setGpsFlags(const StateVector::GpsFix& gpsFix)
+void DebugData::setGpsFlags(const GpsFix& gpsFix)
 {
 	switch (gpsFix)
 	{
-	case StateVector::NO_FIX:
+	case NO_FIX:
 		flagsObj.setFlagState(GPS_FIX, false); // no GPS fix
 		flagsObj.setFlagState(GPS_FIX_3D, false); // no 3D fix
 		break;
-	case StateVector::FIX:
+	case FIX:
 		flagsObj.setFlagState(GPS_FIX, true); // GPS fixed
 		flagsObj.setFlagState(GPS_FIX_3D, false); // no 3D fix
 		break;
-	case StateVector::FIX_3D:
+	case FIX_3D:
 		flagsObj.setFlagState(GPS_FIX, true); // GPS fixed
 		flagsObj.setFlagState(GPS_FIX_3D, true); // 3D fixed
 		break;
@@ -215,5 +209,3 @@ float DebugData::getNormalYaw(void) const
 	else if (yaw < 0.0f) yaw += float(2 * roboLib::pi);
 	return yaw;
 }
-
-#endif //__MULTICOPTER_USER_APP__

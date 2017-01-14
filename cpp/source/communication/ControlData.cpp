@@ -23,6 +23,11 @@ void ControlData::serialize(unsigned char* dst) const
 	memcpy(dst, (unsigned char*)this + 4, getDataSize());
 }
 
+IMessage::MessageType ControlData::getMessageType(void) const
+{
+    return CONTROL_DATA;
+}
+
 unsigned ControlData::getDataSize(void) const
 {
 	return sizeof(ControlData) - 4;
@@ -82,5 +87,3 @@ void ControlData::setYaw(const float yaw)
 {
 	euler.z = yaw;
 }
-
-#endif //__MULTICOPTER_USER_APP__
