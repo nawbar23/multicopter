@@ -31,7 +31,7 @@ public class CalibrationSettings implements SignalPayloadData {
         magnetHard = new float[3];
         radioLevels = new float[16];
         pwmInputLevels = new byte[8];
-        flags = new Flags(32);
+        flags = new Flags(32, 0);
 
         accelCalib[0] = 1.0f;
         accelCalib[4] = 1.0f;
@@ -56,7 +56,7 @@ public class CalibrationSettings implements SignalPayloadData {
         magnetHard = new float[3];
         radioLevels = new float[16];
         pwmInputLevels = new byte[8];
-        flags = new Flags(32);
+        flags = new Flags(32, 0);
 
         ByteBuffer buffer = ByteBuffer.wrap(dataArray);
         buffer.order(ByteOrder.LITTLE_ENDIAN);

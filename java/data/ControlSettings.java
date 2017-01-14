@@ -109,9 +109,59 @@ public class ControlSettings implements SignalPayloadData {
     }
 
     public ControlSettings(final byte[] dataArray) {
+        pidRollRate = new float[3];
+        pidPitchRate = new float[3];
+        pidYawRate = new float[3];
+        pidThrottleAccel = new float[3];
+        pidAutoAccel = new float[3];
+        gpsSensorPosition = new float[3];
+        flags = new Flags(32, 0);
 
-        // TODO implement deserialization
+        ByteBuffer buffer = ByteBuffer.wrap(dataArray);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
 
+        uavType = buffer.getInt();
+        initialSolverMode = buffer.getInt();
+        manualThrottleMode = buffer.getInt();
+        autoLandingDescendRate = buffer.getFloat();
+        maxAutoLandingTime = buffer.getFloat();
+        maxRollPitchControlValue = buffer.getFloat();
+        maxYawControlValue = buffer.getFloat();
+        for (int i = 0; i < pidRollRate.length; i++) {
+            pidRollRate[i] = buffer.getFloat();
+        }
+        for (int i = 0; i < pidPitchRate.length; i++) {
+            pidPitchRate[i] = buffer.getFloat();
+        }
+        for (int i = 0; i < pidYawRate.length; i++) {
+            pidYawRate[i] = buffer.getFloat();
+        }
+        rollProp = buffer.getFloat();
+        pitchProp = buffer.getFloat();
+        yawProp = buffer.getFloat();
+        altPositionProp = buffer.getFloat();
+        altVelocityProp = buffer.getFloat();
+        for (int i = 0; i < pidThrottleAccel.length; i++) {
+            pidThrottleAccel[i] = buffer.getFloat();
+        }
+        throttleAltRateProp = buffer.getFloat();
+        maxAutoAngle = buffer.getFloat();
+        maxAutoVelocity = buffer.getFloat();
+        autoPositionProp = buffer.getFloat();
+        autoVelocityProp = buffer.getFloat();
+        for (int i = 0; i < pidAutoAccel.length; i++) {
+            pidAutoAccel[i] = buffer.getFloat();
+        }
+        stickPositionRateProp = buffer.getFloat();
+        stickMovementMode = buffer.getInt();
+        batteryType = buffer.getInt();
+        errorHandlingAction = buffer.getInt();
+        escPwmFreq = buffer.getInt();
+        for (int i = 0; i < gpsSensorPosition.length; i++) {
+            gpsSensorPosition[i] = buffer.getFloat();
+        }
+        flags.setFlags(buffer.getInt());
+        crcValue = buffer.getInt();
     }
 
     @Override
@@ -133,8 +183,7 @@ public class ControlSettings implements SignalPayloadData {
     }
 
     private int getDataArraySize() {
-        // TODO wrong data size !!!
-        return 188;
+        return 168;
     }
 
     public byte[] serialize() {
@@ -142,7 +191,48 @@ public class ControlSettings implements SignalPayloadData {
         ByteBuffer buffer = ByteBuffer.allocate(dataArray.length);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        // TODO implement serialization
+        buffer.putInt(uavType);
+        buffer.putInt(initialSolverMode);
+        buffer.putInt(manualThrottleMode);
+        buffer.putFloat(autoLandingDescendRate);
+        buffer.putFloat(maxAutoLandingTime);
+        buffer.putFloat(maxRollPitchControlValue);
+        buffer.putFloat(maxYawControlValue);
+        for (float v : pidRollRate) {
+            buffer.putFloat(v);
+        }
+        for (float v : pidPitchRate) {
+            buffer.putFloat(v);
+        }
+        for (float v : pidYawRate) {
+            buffer.putFloat(v);
+        }
+        buffer.putFloat(rollProp);
+        buffer.putFloat(pitchProp);
+        buffer.putFloat(yawProp);
+        buffer.putFloat(altPositionProp);
+        buffer.putFloat(altVelocityProp);
+        for (float v : pidThrottleAccel) {
+            buffer.putFloat(v);
+        }
+        buffer.putFloat(throttleAltRateProp);
+        buffer.putFloat(maxAutoAngle);
+        buffer.putFloat(maxAutoVelocity);
+        buffer.putFloat(autoPositionProp);
+        buffer.putFloat(autoVelocityProp);
+        for (float v : pidAutoAccel) {
+            buffer.putFloat(v);
+        }
+        buffer.putFloat(stickPositionRateProp);
+        buffer.putInt(stickMovementMode);
+        buffer.putInt(batteryType);
+        buffer.putInt(errorHandlingAction);
+        buffer.putInt(escPwmFreq);
+        for (float v : gpsSensorPosition) {
+            buffer.putFloat(v);
+        }
+        buffer.putInt(flags.getFlags());
+        buffer.putInt(crcValue);
 
         System.arraycopy(buffer.array(), 0, dataArray, 0, dataArray.length);
         return dataArray;
@@ -390,5 +480,128 @@ public class ControlSettings implements SignalPayloadData {
 
     public Flags getFlags() {
         return flags;
+    }
+
+    public void setUavType(int uavType) {
+        // TODO fix it, should return ENUM
+        this.uavType = uavType;
+    }
+
+    public void setInitialSolverMode(int initialSolverMode) {
+        // TODO fix it, should return ENUM
+        this.initialSolverMode = initialSolverMode;
+    }
+
+    public void setManualThrottleMode(int manualThrottleMode) {
+        // TODO fix it, should return ENUM
+        this.manualThrottleMode = manualThrottleMode;
+    }
+
+    public void setAutoLandingDescendRate(float autoLandingDescendRate) {
+        this.autoLandingDescendRate = autoLandingDescendRate;
+    }
+
+    public void setMaxAutoLandingTime(float maxAutoLandingTime) {
+        this.maxAutoLandingTime = maxAutoLandingTime;
+    }
+
+    public void setMaxRollPitchControlValue(float maxRollPitchControlValue) {
+        this.maxRollPitchControlValue = maxRollPitchControlValue;
+    }
+
+    public void setMaxYawControlValue(float maxYawControlValue) {
+        this.maxYawControlValue = maxYawControlValue;
+    }
+
+    public void setPidRollRate(float[] pidRollRate) {
+        this.pidRollRate = pidRollRate;
+    }
+
+    public void setPidPitchRate(float[] pidPitchRate) {
+        this.pidPitchRate = pidPitchRate;
+    }
+
+    public void setPidYawRate(float[] pidYawRate) {
+        this.pidYawRate = pidYawRate;
+    }
+
+    public void setRollProp(float rollProp) {
+        this.rollProp = rollProp;
+    }
+
+    public void setPitchProp(float pitchProp) {
+        this.pitchProp = pitchProp;
+    }
+
+    public void setYawProp(float yawProp) {
+        this.yawProp = yawProp;
+    }
+
+    public void setAltPositionProp(float altPositionProp) {
+        this.altPositionProp = altPositionProp;
+    }
+
+    public void setAltVelocityProp(float altVelocityProp) {
+        this.altVelocityProp = altVelocityProp;
+    }
+
+    public void setPidThrottleAccel(float[] pidThrottleAccel) {
+        this.pidThrottleAccel = pidThrottleAccel;
+    }
+
+    public void setThrottleAltRateProp(float throttleAltRateProp) {
+        this.throttleAltRateProp = throttleAltRateProp;
+    }
+
+    public void setMaxAutoAngle(float maxAutoAngle) {
+        this.maxAutoAngle = maxAutoAngle;
+    }
+
+    public void setMaxAutoVelocity(float maxAutoVelocity) {
+        this.maxAutoVelocity = maxAutoVelocity;
+    }
+
+    public void setAutoPositionProp(float autoPositionProp) {
+        this.autoPositionProp = autoPositionProp;
+    }
+
+    public void setAutoVelocityProp(float autoVelocityProp) {
+        this.autoVelocityProp = autoVelocityProp;
+    }
+
+    public void setPidAutoAccel(float[] pidAutoAccel) {
+        this.pidAutoAccel = pidAutoAccel;
+    }
+
+    public void setStickPositionRateProp(float stickPositionRateProp) {
+        this.stickPositionRateProp = stickPositionRateProp;
+    }
+
+    public void setStickMovementMode(int stickMovementMode) {
+        // TODO fix it, should return ENUM
+        this.stickMovementMode = stickMovementMode;
+    }
+
+    public void setBatteryType(int batteryType) {
+        // TODO fix it, should return ENUM
+        this.batteryType = batteryType;
+    }
+
+    public void setErrorHandlingAction(int errorHandlingAction) {
+        // TODO fix it, should return ENUM
+        this.errorHandlingAction = errorHandlingAction;
+    }
+
+    public void setEscPwmFreq(int escPwmFreq) {
+        // TODO fix it, should return ENUM
+        this.escPwmFreq = escPwmFreq;
+    }
+
+    public void setGpsSensorPosition(float[] gpsSensorPosition) {
+        this.gpsSensorPosition = gpsSensorPosition;
+    }
+
+    public void setCrc() {
+        this.crcValue = computeCrc();
     }
 }
