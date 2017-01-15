@@ -4,8 +4,6 @@ import com.multicopter.java.CommMessage;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Created by nbar on 2016-08-22.
