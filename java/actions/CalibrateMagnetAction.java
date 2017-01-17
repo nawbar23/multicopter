@@ -64,7 +64,6 @@ public class CalibrateMagnetAction extends CommHandlerAction {
                         case SIGNAL:
                             if (event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.ACK))) {
                                 System.out.println("Magnetometer calibration starts");
-                                commHandler.getUavManager().startMagnetometerCalibration();
                                 state = CalibrationState.WAITING_FOR_CALIBRATION;
                             } else {
                                 System.out.println("Unexpected event received at state " + state.toString());
@@ -79,11 +78,9 @@ public class CalibrateMagnetAction extends CommHandlerAction {
                         SignalData command = new SignalData(msg);
                         if (command.getCommand() == SignalData.Command.CALIBRATE_MAGNET) {
                             if (command.getParameter() == SignalData.Parameter.SKIP) {
-                                commHandler.getUavManager().cancelMagnetometerCalibration();
                                 calibrationProcedureDone = true;
                                 commHandler.notifyActionDone();
                             } else if(command.getParameter() == SignalData.Parameter.DONE){
-                                commHandler.getUavManager().doneMagnetometerCalibration();
                                 calibrationProcedureDone = true;
                                 commHandler.notifyActionDone();
                             } else{
