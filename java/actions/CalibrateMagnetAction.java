@@ -74,11 +74,11 @@ public class CalibrateMagnetAction extends CommHandlerAction {
             case WAITING_FOR_CALIBRATION:
                 if(event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.SKIP))){
                         notifyUserEvent(new UserEvent(UserEvent.Type.CANCEL_MAGNETOMETER_CALIBRATION));
-                    } else if(event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.DONE))){
-                        notifyUserEvent(new UserEvent(UserEvent.Type.DONE_MAGNETOMETER_CALIBRATION));
-                    } else {
-                        System.out.println("Unexpected event received at state " + state.toString());
-                    }
+                } else if(event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.DONE))){
+                    notifyUserEvent(new UserEvent(UserEvent.Type.DONE_MAGNETOMETER_CALIBRATION));
+                } else {
+                    System.out.println("Unexpected event received at state " + state.toString());
+                }
                 break;
             case WAITING_FOR_CALIBRATION_DATA:
                 if (event.getType() == CommEvent.EventType.SIGNAL_PAYLOAD_RECEIVED
