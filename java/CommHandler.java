@@ -132,6 +132,8 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
                 return new FlightLoopAction(this);
             case ACCELEROMETER_CALIBRATION:
                 return new CalibrateAccelAction(this);
+            case CALIBRATE_MAGNETOMETER:
+                return new CalibrateMagnetAction(this);
 
             default:
                 throw new Exception("CommHandler: Unsupported action type");

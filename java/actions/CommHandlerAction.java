@@ -23,6 +23,7 @@ public abstract class CommHandlerAction {
         DOWNLOAD_CONTROL_SETTINGS,
         UPLOAD_ROUTE_CONTAINER,
         DOWNLOAD_ROUTE_CONTAINER,
+        CALIBRATE_MAGNETOMETER;
     }
 
     CommHandlerAction(CommHandler commHandler){
