@@ -1,7 +1,6 @@
 package com.multicopter.java.actions;
 
 import com.multicopter.java.CommHandler;
-import com.multicopter.java.CommMessage;
 import com.multicopter.java.UavEvent;
 import com.multicopter.java.data.CalibrationSettings;
 import com.multicopter.java.data.DebugData;
@@ -20,6 +19,7 @@ public class CalibrateMagnetAction extends CommHandlerAction {
     public enum CalibrationState {
         IDLE,
         INITIAL_COMMAND,
+        WAITING_FOR_USER_COMMAND,
         WAITING_FOR_CALIBRATION,
         WAITING_FOR_CALIBRATION_DATA
 
@@ -64,22 +64,34 @@ public class CalibrateMagnetAction extends CommHandlerAction {
                         case SIGNAL:
                             if (event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.ACK))) {
                                 System.out.println("Magnetometer calibration starts");
-                                state = CalibrationState.WAITING_FOR_CALIBRATION;
+                                state = CalibrationState.WAITING_FOR_USER_COMMAND;
+                                commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MAGNETOMETER_CALIBRATION_STARTED));
                             } else {
                                 System.out.println("Unexpected event received at state " + state.toString());
                             }
                             break;
                     }
                 }
+                break;
+
+            case WAITING_FOR_USER_COMMAND:
+                System.out.println("Unexpected comm event received at state " + state.toString());
+                break;
+
             case WAITING_FOR_CALIBRATION:
-                if(event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.SKIP))){
-                        notifyUserEvent(new UserEvent(UserEvent.Type.CANCEL_MAGNETOMETER_CALIBRATION));
-                } else if(event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.DONE))){
-                    notifyUserEvent(new UserEvent(UserEvent.Type.DONE_MAGNETOMETER_CALIBRATION));
+                if(event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.DONE))){
+                    state = CalibrationState.WAITING_FOR_CALIBRATION_DATA;
+
+                } else if(event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.FAIL))){
+                    commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Bad data acquired during magnetometer calibration!"));
+                    calibrationProcedureDone = true;
+                    commHandler.notifyActionDone();
+
                 } else {
                     System.out.println("Unexpected event received at state " + state.toString());
                 }
                 break;
+
             case WAITING_FOR_CALIBRATION_DATA:
                 if (event.getType() == CommEvent.EventType.SIGNAL_PAYLOAD_RECEIVED
                         && ((SignalPayloadEvent)event).getDataType() == SignalData.Command.CALIBRATION_SETTINGS_DATA) {
@@ -88,7 +100,6 @@ public class CalibrateMagnetAction extends CommHandlerAction {
                     CalibrationSettings calibrationSettings = (CalibrationSettings)signalEvent.getData();
                     if (calibrationSettings.isValid()) {
                         System.out.println("Calibration settings received after magnetometer calibration");
-                        state = CalibrationState.IDLE;
                         commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.ACK).getMessage());
                         commHandler.getUavManager().setCalibrationSettings(calibrationSettings);
                         commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Magnetometer calibration successful!"));
@@ -117,14 +128,19 @@ public class CalibrateMagnetAction extends CommHandlerAction {
 
     @Override
     public void notifyUserEvent(UserEvent userEvent) {
-        if (userEvent.getType() == UserEvent.Type.DONE_MAGNETOMETER_CALIBRATION) {
-            commHandler.send(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.DONE).getMessage());
-            state = CalibrationState.WAITING_FOR_CALIBRATION_DATA;
-        } else if (userEvent.getType() == UserEvent.Type.CANCEL_MAGNETOMETER_CALIBRATION) {
-            commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Calibration cancelled!"));
-            commHandler.send(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.ACK).getMessage());
-            calibrationProcedureDone = true;
-            commHandler.notifyActionDone();
+        if (state == CalibrationState.WAITING_FOR_USER_COMMAND) {
+            if (userEvent.getType() == UserEvent.Type.DONE_MAGNETOMETER_CALIBRATION) {
+                commHandler.send(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.DONE).getMessage());
+                state = CalibrationState.WAITING_FOR_CALIBRATION;
+
+            } else if (userEvent.getType() == UserEvent.Type.CANCEL_MAGNETOMETER_CALIBRATION) {
+                commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Calibration cancelled!"));
+                commHandler.send(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.ACK).getMessage());
+                calibrationProcedureDone = true;
+                commHandler.notifyActionDone();
+            }
+        } else {
+            System.out.println("Unexpected user event received at state " + state.toString());
         }
     }
 

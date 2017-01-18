@@ -94,8 +94,6 @@ public class UavManager {
      * startMagnetometerCalibration
      */
     public void startMagnetometerCalibration() {
-        notifyUavEvent(new UavEvent(UavEvent.Type.MAGNETOMETER_CALIBRATION_STARTED));
-        // TODO uncomment this after dialog tests, begin of magnetometer comm procedure
         if (commHandler.getCommActionType() == CommHandlerAction.ActionType.APPLICATION_LOOP) {
             preformAction(CommHandlerAction.ActionType.CALIBRATE_MAGNETOMETER);
         }
