@@ -118,11 +118,10 @@ public class CalibrateMagnetAction extends CommHandlerAction {
     @Override
     public void notifyUserEvent(UserEvent userEvent) {
         if (userEvent.getType() == UserEvent.Type.DONE_MAGNETOMETER_CALIBRATION) {
-            commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Finishing calibration!"));
             commHandler.send(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.DONE).getMessage());
             state = CalibrationState.WAITING_FOR_CALIBRATION_DATA;
         } else if (userEvent.getType() == UserEvent.Type.CANCEL_MAGNETOMETER_CALIBRATION) {
-            commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Canceling calibration!"));
+            commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Calibration cancelled!"));
             commHandler.send(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.ACK).getMessage());
             calibrationProcedureDone = true;
             commHandler.notifyActionDone();
