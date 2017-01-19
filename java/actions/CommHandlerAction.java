@@ -8,7 +8,7 @@ import com.multicopter.java.events.CommEvent;
  */
 public abstract class CommHandlerAction {
 
-    protected CommHandler commHandler;
+    public static CommHandler commHandler;
 
     public enum ActionType {
         IDLE,

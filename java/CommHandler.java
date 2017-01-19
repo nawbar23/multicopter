@@ -1,5 +1,7 @@
 package com.multicopter.java;
 
+import android.os.Binder;
+
 import com.multicopter.java.actions.*;
 import com.multicopter.java.data.SignalData;
 import com.multicopter.java.events.CommEvent;
@@ -21,9 +23,9 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
     private UavManager uavManager;
 
     private List<CommTask> runningTasks;
-    
 
-    public CommHandler(UavManager uavManager, CommInterface commInterface){
+
+    public CommHandler(UavManager uavManager, CommInterface commInterface, float pingFreg){
         this.commHandlerAction = new IdleAction(this);
         this.commInterface = commInterface;
         this.commInterface.setListener(this);
@@ -32,6 +34,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
         this.uavManager = uavManager;
 
         this.runningTasks = new ArrayList<>();
+        pingTask.setFrequency(pingFreg);
     }
 
     public void connectSocket(String ipAddress, int port) {
@@ -156,7 +159,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
 
     private PingTaskState state = PingTaskState.CONFIRMED;
 
-    private CommTask pingTask = new CommTask(this, 0.5) {
+    private CommTask pingTask = new CommTask(this) {
 
         @Override
         protected String getTaskName() {
@@ -181,7 +184,9 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
         }
     };
 
+
     private long handlePongReception(final SignalData pingPongMessage) {
+
         if (pingPongMessage.getParameterValue() == sentPing.getParameterValue()) {
             // valid ping measurement, compute ping time
             state = PingTaskState.CONFIRMED;
@@ -215,6 +220,12 @@ public class CommHandler implements CommInterface.CommInterfaceListener {
         System.out.println("CommHandler: stopAllTasks");
         for (CommTask task : runningTasks) {
             stopCommTask(task);
+        }
+    }
+
+    public class LocalBinder extends Binder {//
+        public CommHandler getHandler() {
+            return CommHandler.this;
         }
     }
 }

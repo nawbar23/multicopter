@@ -1,5 +1,7 @@
 package com.multicopter.java;
 
+
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -11,19 +13,21 @@ import java.util.TimerTask;
 public abstract class CommTask {
     private static final String DEBUG_TAG = "AdDrone:" + CommTask.class.getSimpleName();
 
-    private CommHandler commHandler;
-
+    public CommHandler commHandler;
     private Timer timer;
 
     // frequency of task [Hz]
-    private double frequency;
+    private double  frequency;
 
     private boolean isRunning;
 
-    protected CommTask(CommHandler commHandler, double frequency) {
+    protected CommTask(CommHandler commHandler) {
         this.commHandler = commHandler;
-        this.frequency = frequency;
         this.isRunning = false;
+    }
+
+    public CommHandler getCommHandler() {
+        return commHandler;
     }
 
     public void start() {
@@ -31,6 +35,8 @@ public abstract class CommTask {
     }
 
     private void start(double freq) {
+      //  System.out.println("czestot1="+ frequency);
+     //   System.out.println("czestot2="+ freq);
         System.out.println("Starting task: " + getTaskName() + " with freq: " + String.valueOf(freq) + "Hz");
         timer = new Timer(getTaskName() + "_timer");
         TimerTask timerTask = new TimerTask() {
@@ -63,8 +69,10 @@ public abstract class CommTask {
 
     public void setFrequency(double frequency) {
         this.frequency = frequency;
+        if (isRunning){
         stop();
         start();
+        }
     }
 
     public boolean isRunning() {
@@ -74,4 +82,8 @@ public abstract class CommTask {
     protected abstract String getTaskName();
 
     protected abstract void task();
+
+
 }
+
+

@@ -1,9 +1,11 @@
 package com.multicopter.java.data;
 
+import com.addrone.viewmodel.ControlViewModel;
 import com.multicopter.java.CommMessage;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.sql.Timestamp;
 
 /**
  * Created by nbar on 2016-08-19.
@@ -20,6 +22,8 @@ public class ControlData {
     private float throttle;
     private ControllerCommand command;
     private SolverMode mode;
+
+
 
     public ControlData() {
         this.roll = 0.0f;

@@ -9,9 +9,6 @@ import com.multicopter.java.data.SignalData;
 import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
 
-import static com.multicopter.java.CommMessage.MessageType.CONTROL;
-import static com.multicopter.java.CommMessage.MessageType.SIGNAL;
-
 /**
  * Created by ebarnaw on 2016-10-14.
  */
@@ -138,7 +135,7 @@ public class FlightLoopAction extends CommHandlerAction {
         return ActionType.FLIGHT_LOOP;
     }
 
-    private CommTask controlTask = new CommTask(commHandler, 20) {
+    private CommTask controlTask = new CommTask(commHandler) {
         @Override
         protected String getTaskName() {
             return "control_task";

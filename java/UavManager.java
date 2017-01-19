@@ -1,5 +1,7 @@
 package com.multicopter.java;
 
+import android.content.SharedPreferences;
+
 import com.multicopter.java.actions.CommHandlerAction;
 import com.multicopter.java.data.*;
 
@@ -35,11 +37,11 @@ public class UavManager {
 
     private ControlDataSource controlDataSource;
 
-    public UavManager(CommInterface commInterface) {
+    public UavManager(CommInterface commInterface, float ping, float freq) {
         this.listeners = new ArrayList<>();
         this.commDelay = 0;
 
-        this.commHandler = new CommHandler(this, commInterface);
+        this.commHandler = new CommHandler(this, commInterface, freq);
     }
 
     public CommHandler getCommHandler() {
