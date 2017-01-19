@@ -4,15 +4,14 @@
 #ifndef __CALIBRATION_SETTINGS__
 #define __CALIBRATION_SETTINGS__
 
-#include "roboLibCore.hpp"
+#include "MathCore.hpp"
 
-#include "IXmlParcable.hpp"
 #include "ISignalPayloadMessage.hpp"
-#include "SignalData.hpp"
 
+#include "SignalData.hpp"
 #include "Flags.hpp"
 
-class CalibrationSettings : public ISignalPayloadMessage, public IXmlParcable
+class CalibrationSettings : public ISignalPayloadMessage
 {
 public:
 	enum BoardType
@@ -22,13 +21,13 @@ public:
 		TYPE_ULTIMATE_V5 = 5,
 		TYPE_BASIC_V1 = 101,
 		TYPE_BASIC_V2 = 102,
-		TYPE_BASIC_V3 = 103,
+		TYPE_BASIC_V3 = 103
 	};
 
 	enum FlagId
 	{
 		IS_GPS_CONNECTED,
-		IS_EXTERNAL_MAGNETOMETER_USED,
+		IS_EXTERNAL_MAGNETOMETER_USED
 	};
 
 	Vect3Df gyroOffset;
@@ -56,17 +55,18 @@ public:
 	SignalData::Command getSignalDataType(void) const;
 	SignalData::Command getSignalDataCommand(void) const;
 
+    MessageType getMessageType(void) const;
+
 	bool isValid(void) const;
 
 	void setCrc(void);
 
 	static CalibrationSettings createDefault(void);
 
-	static Mat4Df SetDefaultRadioLevels(void);
+	static Mat4Df getDefaultRadioLevels(void);
 
-	void SetDefaultPwmInputMap(void);
-
-	void SetPwmInputMap(char* map);
+	void setDefaultPwmInputMap(void);
+	void setPwmInputMap(char* map);
 
 private:
 	unsigned crcValue;

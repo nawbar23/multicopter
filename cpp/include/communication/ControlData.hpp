@@ -4,7 +4,7 @@
 #ifndef __CONTROL_DATA__
 #define __CONTROL_DATA__
 
-#include "roboLibCore.hpp"
+#include "MathCore.hpp"
 
 #include "IMessage.hpp"
 
@@ -24,7 +24,7 @@ public:
 		// error conditions
 		ERROR_CONNECTION = 6100,
 		ERROR_JOYSTICK = 6200,
-		ERROR_EXTERNAL = 6300,
+		ERROR_EXTERNAL = 6300
 	};
 
 	enum SolverMode // unsigned char
@@ -32,7 +32,7 @@ public:
 		STABLILIZATION = 0,
 		ANGLE_NO_YAW = 1,
 		ANGLE = 2,
-		HEADLESS = 3,
+		HEADLESS = 3
 	};
 
 	ControlData(void);
@@ -41,6 +41,8 @@ public:
 	PreambleType getPreambleType(void) const;
 
 	void serialize(unsigned char* data) const;
+
+    MessageType getMessageType(void) const;
 
 	unsigned getDataSize(void) const;
 

@@ -11,9 +11,8 @@ import java.util.TimerTask;
  * Controlled by start and stop methods, dynamically responds for frequency change.
  */
 public abstract class CommTask {
-    private static final String DEBUG_TAG = "AdDrone:" + CommTask.class.getSimpleName();
-
     public CommHandler commHandler;
+
     private Timer timer;
 
     // frequency of task [Hz]
@@ -22,7 +21,8 @@ public abstract class CommTask {
     private boolean isRunning;
 
     protected CommTask(CommHandler commHandler) {
-        this.commHandler = commHandler;
+     this.commHandler = commHandler;
+        this.frequency = 20;
         this.isRunning = false;
     }
 
@@ -35,8 +35,6 @@ public abstract class CommTask {
     }
 
     private void start(double freq) {
-      //  System.out.println("czestot1="+ frequency);
-     //   System.out.println("czestot2="+ freq);
         System.out.println("Starting task: " + getTaskName() + " with freq: " + String.valueOf(freq) + "Hz");
         timer = new Timer(getTaskName() + "_timer");
         TimerTask timerTask = new TimerTask() {
@@ -70,8 +68,8 @@ public abstract class CommTask {
     public void setFrequency(double frequency) {
         this.frequency = frequency;
         if (isRunning){
-        stop();
-        start();
+            stop();
+            start();
         }
     }
 

@@ -8,6 +8,7 @@ import com.multicopter.java.data.DebugData;
 import com.multicopter.java.data.SignalData;
 import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
+import com.multicopter.java.events.UserEvent;
 
 /**
  * Created by ebarnaw on 2016-10-14.
@@ -45,10 +46,6 @@ public class FlightLoopAction extends CommHandlerAction {
         commHandler.send(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.START).getMessage());
     }
 
-    public void breakLoop() {
-        state = FlightLoopState.BREAKING;
-    }
-
     @Override
     public void handleEvent(CommEvent event) throws Exception {
         FlightLoopState actualState = state;
@@ -79,7 +76,7 @@ public class FlightLoopAction extends CommHandlerAction {
                                 commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Flight loop not allowed!"));
 
                             } else {
-                                System.out.println("Unexpected event received !!!");
+                                System.out.println("Unexpected event received!!!");
                             }
                             break;
                     }
@@ -131,11 +128,19 @@ public class FlightLoopAction extends CommHandlerAction {
     }
 
     @Override
+    public void notifyUserEvent(UserEvent userEvent) {
+        if (userEvent.getType() == UserEvent.Type.END_FLIGHT_LOOP) {
+            state = FlightLoopState.BREAKING;
+        }
+    }
+
+    @Override
     public ActionType getActionType() {
         return ActionType.FLIGHT_LOOP;
     }
 
     private CommTask controlTask = new CommTask(commHandler) {
+
         @Override
         protected String getTaskName() {
             return "control_task";

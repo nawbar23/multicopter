@@ -38,7 +38,7 @@ public:
 		CONTROL_SETTINGS_DATA,
 		ROUTE_CONTAINER_DATA,
 
-		PING_VALUE,
+		PING_VALUE
 	};
 
 	enum CommandParameter
@@ -48,6 +48,7 @@ public:
 		START = 1000011,
 		ACK,
 		DATA_ACK,
+		ENTER_DFU,
 
 		BREAK,
 		BREAK_ACK,
@@ -62,7 +63,7 @@ public:
 		NOT_ALLOWED,
 
 		BAD_CRC,
-		TIMEOUT,
+		TIMEOUT
 	};
 
 	SignalData(void);
@@ -77,11 +78,13 @@ public:
 
 	bool operator ==(const SignalData& right) const;
 
-	virtual unsigned getPayloadSize(void) const;
+    unsigned getPayloadSize(void) const;
 
-	virtual PreambleType getPreambleType(void) const;
+    PreambleType getPreambleType(void) const;
 
-	virtual void serialize(unsigned char* dst) const;
+    void serialize(unsigned char* dst) const;
+
+    MessageType getMessageType(void) const;
 
 	static Command parseCommand(const unsigned char* src);
 	static CommandParameter parseCommandParameter(const unsigned char* src);

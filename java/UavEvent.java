@@ -2,6 +2,7 @@ package com.multicopter.java;
 
 /**
  * Created by ebarnaw on 2016-10-14.
+ * This class contains events types that can be posted by UavManager.
  */
 public class UavEvent {
     public enum Type {
@@ -18,6 +19,7 @@ public class UavEvent {
         PING_UPDATED,
         FLIGHT_STARTED,
         FLIGHT_ENDED,
+        MAGNETOMETER_CALIBRATION_STARTED
     }
 
     private Type type;

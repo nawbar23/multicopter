@@ -4,16 +4,15 @@
 #ifndef __CONTROL_SETTINGS__
 #define __CONTROL_SETTINGS__
 
-#include "roboLibCore.hpp"
+#include "MathCore.hpp"
 
-#include "IXmlParcable.hpp"
 #include "ISignalPayloadMessage.hpp"
-#include "SignalData.hpp"
 
+#include "SignalData.hpp"
 #include "ControlData.hpp"
 #include "Flags.hpp"
 
-class ControlSettings : public ISignalPayloadMessage, public IXmlParcable
+class ControlSettings : public ISignalPayloadMessage
 {
 public:
 	enum UavType
@@ -24,7 +23,7 @@ public:
 		HEXACOPTER_X = 3000,
 		HEXACOPTER_PLUS = 3500,
 		OCTOCOPTER_X = 4000,
-		OCTOCOPTER_PLUS = 4500,
+		OCTOCOPTER_PLUS = 4500
 	};
 
 	enum ThrottleMode // unsigned char
@@ -32,7 +31,7 @@ public:
 		STATIC = 10,
 		DYNAMIC = 20,
 		RATE = 30,
-		ALTITUDE = 40,
+		ALTITUDE = 40
 	};
 
 	enum StickMovementMode
@@ -49,7 +48,7 @@ public:
 		BATTERY_3S,
 		BATTERY_4S,
 		BATTERY_5S,
-		BATTERY_6S,
+		BATTERY_6S
 	};
 
 	enum EscPwmFreq
@@ -58,14 +57,14 @@ public:
 		MEDIUM,
 		FAST,
 		VERY_FAST,
-		ONESHOT_125,
+		ONESHOT_125
 	};
 
 	enum FlagId
 	{
 		ENABLE_FLIGHT_LOGGER,
 		ALLOW_DYNAMIC_AUTOPILOT,
-		GPS_SENSORS_POSITION_DEFINED,
+		GPS_SENSORS_POSITION_DEFINED
 	};
 
 	// base control settings
@@ -73,7 +72,7 @@ public:
 	int initialSolverMode;
 	int manualThrottleMode;
 
-	// auto langing settings
+	// auto landing settings
 	float autoLandingDescedRate;
 	float maxAutoLandingTime;
 
@@ -131,6 +130,8 @@ public:
 	SignalData::Command getSignalDataType(void) const;
 	SignalData::Command getSignalDataCommand(void) const;
 
+    MessageType getMessageType(void) const;
+
 	bool isValid(void) const;
 
 	void setCrc(void);
@@ -147,6 +148,12 @@ public:
 	ControlData::SolverMode getInitialSolverMode(void) const;
 
 	ControlData formatEulers(const ControlData& controlData) const;
+
+	static ControlSettings createDefault(void);
+
+	bool isUavBisymetricalFromData(void) const;
+
+	ControlData getControlDataForLogs(const ControlData& controlData) const;
 
 private:
 	unsigned crcValue;

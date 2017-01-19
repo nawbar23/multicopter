@@ -133,18 +133,18 @@ unsigned short IMessage::computeCrc16(const unsigned char* data, const unsigned 
 
 unsigned IMessage::computeCrc32(const unsigned char* data, const unsigned dataSize)
 {
-	const unsigned CRC_POLY = 0x82f63b78;
 	unsigned len = dataSize;
 	int k;
-	unsigned crc = 0;
+	int crc = 0;
 	crc = ~crc;
 	while (len--)
 	{
-		crc ^= *data++;
+		int b = *data++;
+		crc ^= b;
 		for (k = 0; k < 8; k++)
 		{
-			crc = crc & 1 ? (crc >> 1) ^ CRC_POLY : crc >> 1;
+			crc = crc & 1 ? (crc >> 1) ^ 0x82f63b78 : crc >> 1;
 		}
 	}
-	return ~crc;
+	return (unsigned)(~crc);
 }

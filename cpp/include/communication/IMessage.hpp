@@ -12,8 +12,19 @@ public:
 		EMPTY,
 		CONTROL,
 		SIGNAL,
-		AUTOPILOT,
+		AUTOPILOT
 	};
+
+    enum MessageType
+    {
+        DEBUG_DATA,
+        CONTROL_DATA,
+        SENSORS_DATA,
+        CALIBRATION_SETTINGS,
+        CONTROL_SETTINGS,
+        ROUTE_CONTAINER,
+        AUTOPILOT_DATA
+    };
 
 	virtual unsigned getPayloadSize(void) const;
 	virtual unsigned getMessageSize(void) const;
@@ -23,10 +34,12 @@ public:
 	virtual void serialize(unsigned char* data) const = 0;
 	virtual void serializeMessage(unsigned char* data) const;
 
+    virtual MessageType getMessageType(void) const = 0;
+
 	// creates dynamically allocated message array with binary communication data
 	unsigned char* createMessage(void) const;
 
-	// virtual destructor for memmory safeness
+	// virtual destructor for memory safeness
 	virtual ~IMessage(void);
 
 	static unsigned char getPreambleCharByType(const PreambleType type);

@@ -3,6 +3,7 @@ package com.multicopter.java.data;
 import com.multicopter.java.CommMessage;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Created by nbar on 2016-08-22.
@@ -30,7 +31,20 @@ public class DebugData {
     private byte battery;
 
     public DebugData() {
+        this.flags = new Flags(8);
+    }
 
+    public DebugData(DebugData debugData) {
+        this.roll = debugData.getRoll();
+        this.pitch = debugData.getPitch();
+        this.yaw = debugData.getYaw();
+        this.latitude = debugData.getLatitude();
+        this.longitude = debugData.getLongitude();
+        this.relativeAltitude = debugData.getRelativeAltitude();
+        this.vLoc = debugData.getVLoc();
+        this.controllerState = debugData.getControllerState();
+        this.flags = new Flags(8, debugData.getFlags());
+        this.battery = debugData.getBattery();
     }
 
     public DebugData(final CommMessage message) {
@@ -99,7 +113,7 @@ public class DebugData {
         return vLoc;
     }
 
-    public void setvLoc(float vLoc) {
+    public void setVLoc(float vLoc) {
         this.vLoc = vLoc;
     }
 
@@ -136,6 +150,19 @@ public class DebugData {
         }
     }
 
+    public void setSolverMode(final ControlData.SolverMode solverMode)
+    {
+        // clean previous state
+        flags.setFlags(flags.getFlags() & 0xFC);
+        // set new solver flags
+        flags.setFlags(flags.getFlags() | solverMode.getValue());
+    }
+
+    public ControlData.SolverMode getSolverMode()
+    {
+        return ControlData.SolverMode.getSolverMode((byte)(flags.getFlags() & 0x03));
+    }
+
     public byte getBattery() {
         return battery;
     }
@@ -150,15 +177,32 @@ public class DebugData {
 
     @Override
     public String toString() {
-        // TODO format this string for better presentation
-        String result = "Rotation: roll: " + String.valueOf(roll) + " pitch: " + String.valueOf(pitch) + " yaw: " + String.valueOf(yaw);
-        result += (", Position: lat: " + String.valueOf(latitude) + " lon: " + String.valueOf(longitude) + " alt: " + String.valueOf(relativeAltitude));
-        result += (", Controller state: " + controllerState.toString() + "(" + String.valueOf(controllerState.getValue()) + ")");
-        return result;
+        return "DebugData:[ roll: " + String.valueOf(roll)
+                + ", pitch: " + String.valueOf(pitch)
+                + ", yaw: " + String.valueOf(yaw)
+                + ", lat: " + String.valueOf(latitude)
+                + ", lon: " + String.valueOf(longitude)
+                + ", alt: " + String.valueOf(relativeAltitude)
+                + ", Controller state: " + controllerState.toString() + "(" + String.valueOf(controllerState.getValue()) + ")"
+                + " ]";
     }
 
     public CommMessage getMessage() {
-        return null;
+        byte[] payload = new byte[CommMessage.getPayloadSizeByType(CommMessage.MessageType.CONTROL)];
+        ByteBuffer buffer = ByteBuffer.allocate(payload.length);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.putFloat(getRoll());
+        buffer.putFloat(getPitch());
+        buffer.putFloat(getYaw());
+        buffer.putFloat(getLatitude());
+        buffer.putFloat(getLongitude());
+        buffer.putFloat(getRelativeAltitude());
+        buffer.putFloat(getVLoc());
+        buffer.putShort(getControllerState().getValue());
+        buffer.put((byte)flags.getFlags());
+        buffer.put(battery);
+        System.arraycopy(buffer.array(), 0, payload, 0, payload.length);
+        return new CommMessage(CommMessage.MessageType.CONTROL, payload);
     }
 
     public enum ControllerState {
@@ -181,7 +225,9 @@ public class DebugData {
         // immediate STOP (even when fling)
         STOP(ControlData.ControllerCommand.STOP.getValue()),
 
-        ERROR_CONNECTION((short)6100);
+        APPLICATION_LOOP((short)3000),
+
+        ERROR_CONNECTION(ControlData.ControllerCommand.ERROR_CONNECTION.getValue());
 
         private final short value;
 
@@ -194,17 +240,12 @@ public class DebugData {
         }
 
         static public ControllerState getControllerState(short value) {
-            if (value == IDLE.getValue()) return IDLE;
-            else if (value == MANUAL.getValue()) return MANUAL;
-            else if (value == AUTOLANDING.getValue()) return AUTOLANDING;
-            else if (value == AUTOLANDING_AP.getValue()) return AUTOLANDING_AP;
-            else if (value == HOLD_ALTITUDE.getValue()) return HOLD_ALTITUDE;
-            else if (value == HOLD_POSITION.getValue()) return HOLD_POSITION;
-            else if (value == BACK_TO_BASE.getValue()) return BACK_TO_BASE;
-            else if (value == VIA_ROUTE.getValue()) return VIA_ROUTE;
-            else if (value == STOP.getValue()) return STOP;
-            else if (value == ERROR_CONNECTION.getValue()) return ERROR_CONNECTION;
-            else return IDLE; // TODO throw some exception
+            for (ControllerState controllerState : ControllerState.values()) {
+                if (controllerState.getValue() == value) {
+                    return controllerState;
+                }
+            }
+            return IDLE; // TODO throw some exception
         }
 
         @Override
@@ -218,6 +259,7 @@ public class DebugData {
             else if (value == BACK_TO_BASE.getValue()) return "Back to base";
             else if (value == VIA_ROUTE.getValue()) return "Via route";
             else if (value == STOP.getValue()) return "Stop";
+            else if (value == APPLICATION_LOOP.getValue()) return "Application loop";
             else if (value == ERROR_CONNECTION.getValue()) return "Error connection";
             else return "Error type!";
         }

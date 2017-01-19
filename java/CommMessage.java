@@ -111,7 +111,7 @@ public class CommMessage {
         }
     }
 
-    public static ArrayList<CommMessage> buildMessagesList(final SignalData.Command dataCommand, final byte[] dataArray) throws Exception {
+    public static ArrayList<CommMessage> buildMessagesList(final SignalData.Command dataCommand, final byte[] dataArray) {
         ArrayList<CommMessage> result = new ArrayList<>();
 
         final short messagesCount = (short)((double)dataArray.length / CommMessage.SIGNAL_DATA_PAYLOAD_SIZE + 0.99999);
@@ -171,14 +171,14 @@ public class CommMessage {
     }
 
     static public int computeCrc32(byte[] data) {
-	    final int CRC_POLY = 0x82f63b78;
         int crc = 0;
         crc = ~crc;
         for (byte b : data) {
-            crc ^= b;
+            int bb = (b >= 0 ? b : (256 + b)); // turn 'byte' to 'unsigned char' value
+            crc ^= bb;
             for (int k = 0; k < 8; k++)
             {
-                crc = ((crc & 1) != 0) ? (crc >> 1) ^ CRC_POLY : crc >> 1;
+                crc = ((crc & 1) != 0) ? (crc >> 1) ^ 0x82f63b78 : crc >> 1;
             }
         }
         return ~crc;

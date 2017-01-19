@@ -16,14 +16,15 @@ RouteContainer::RouteContainer(const unsigned char* src)
 	// cast constraint of container
 	memcpy(&constraint, src, getConstraintBinarySize());
 
-	// alocate memmory
-	if (constraint.routeSize <= getMaxRouteSize())
+    if (constraint.routeSize <= getMaxRouteSize())
 	{
+		// alocate memmory
 		route = new Waypoint[constraint.routeSize];
 		// cast dynamic route vector
 		for (unsigned i = 0; i < constraint.routeSize; i++)
 		{
-			memcpy(route + i, src + getConstraintBinarySize() + i * sizeof(Waypoint), sizeof(Waypoint));
+			route[i] = Waypoint(
+				src + getConstraintBinarySize() + i * Waypoint::getDataSize());
 		}
 	}
 	else
@@ -40,14 +41,30 @@ RouteContainer::RouteContainer(const RouteContainer& routeContainer)
 	*this = routeContainer;
 }
 
+RouteContainer::RouteContainer(const Waypoint* const _route, const unsigned _routeSize,
+	const float _waypointTime, const float _baseTime)
+{
+	constraint.routeSize = _routeSize;
+	constraint.waypointTime = _waypointTime;
+	constraint.baseTime = _baseTime;
+
+	route = new Waypoint[constraint.routeSize];
+	for (unsigned i = 0; i < constraint.routeSize; i++)
+	{
+		route[i] = _route[i];
+	}
+	setCrc();
+}
+
 void RouteContainer::serialize(unsigned char* dst) const
 {
 	// cast constraint of container
-	memcpy(dst, &constraint, sizeof(Constraint));
+	memcpy(dst, &constraint, getConstraintBinarySize());
 	// cast dynamic route vector
 	for (unsigned i = 0; i < constraint.routeSize; i++)
 	{
-		memcpy(dst + getConstraintBinarySize() + i * sizeof(Waypoint), route + i, sizeof(Waypoint));
+		route[i].serialize(
+			dst + getConstraintBinarySize() + i * Waypoint::getDataSize());
 	}
 }
 
@@ -64,6 +81,11 @@ SignalData::Command RouteContainer::getSignalDataType(void) const
 SignalData::Command RouteContainer::getSignalDataCommand(void) const
 {
 	return SignalData::ROUTE_CONTAINER;
+}
+
+IMessage::MessageType RouteContainer::getMessageType(void) const
+{
+    return ROUTE_CONTAINER;
 }
 
 bool RouteContainer::isValid(void) const
@@ -85,7 +107,7 @@ void RouteContainer::setCrc(void)
 
 unsigned RouteContainer::getRouteBinarySize(void) const
 {
-	return sizeof(Waypoint)* constraint.routeSize;
+	return Waypoint::getDataSize() * constraint.routeSize;
 }
 
 unsigned RouteContainer::getBinarySize(void) const
@@ -184,7 +206,5 @@ unsigned RouteContainer::getMaxRouteSize(void)
 
 unsigned RouteContainer::getMaxRouteContainerBinarySize(void)
 {
-	return getConstraintBinarySize() + getMaxRouteSize() * sizeof(Waypoint);
+	return getConstraintBinarySize() + Waypoint::getDataSize() * getMaxRouteSize();
 }
-
-#endif // __MULTICOPTER_USER_APP__

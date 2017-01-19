@@ -91,13 +91,18 @@ public class CalibrateAccelAction extends CommHandlerAction {
                         && ((SignalPayloadEvent)event).getDataType() == SignalData.Command.CALIBRATION_SETTINGS_DATA) {
                     SignalPayloadEvent signalEvent = (SignalPayloadEvent)event;
 
-                    state = CalibrationState.IDLE;
-                    System.out.println("Calibration settings received after accelerometer calibration");
-                    commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.ACK).getMessage());
-                    commHandler.getUavManager().setCalibrationSettings(((CalibrationSettings)signalEvent.getData()));
-                    commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Accelerometer calibration successful"));
-                    calibrationProcedureDone = true;
-                    commHandler.notifyActionDone();
+                    CalibrationSettings calibrationSettings = (CalibrationSettings)signalEvent.getData();
+                    if (calibrationSettings.isValid()) {
+                        System.out.println("Calibration settings received after accelerometer calibration");
+                        commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.ACK).getMessage());
+                        commHandler.getUavManager().setCalibrationSettings(calibrationSettings);
+                        commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Accelerometer calibration successful"));
+                        calibrationProcedureDone = true;
+                        commHandler.notifyActionDone();
+                    } else {
+                        System.out.println("Calibration settings received but the data is invalid, responding with BAD_CRC");
+                        commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.BAD_CRC).getMessage());
+                    }
                 } else {
                     System.out.println("Unexpected event received at state " + state.toString());
                 }
@@ -115,6 +120,6 @@ public class CalibrateAccelAction extends CommHandlerAction {
 
     @Override
     public ActionType getActionType() {
-        return ActionType.CALIBRATE_ACCELEROMETER;
+        return ActionType.ACCELEROMETER_CALIBRATION;
     }
 }

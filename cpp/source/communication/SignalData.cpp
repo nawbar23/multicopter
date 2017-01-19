@@ -63,6 +63,11 @@ void SignalData::serialize(unsigned char* dst) const
 	memcpy(dst + IMessage::SIGNAL_COMMAND_SIZE, &parameter, IMessage::SIGNAL_COMMAND_SIZE);
 }
 
+IMessage::MessageType SignalData::getMessageType(void) const
+{
+    return CONTROL_DATA;
+}
+
 SignalData::Command SignalData::parseCommand(const unsigned char* src)
 {
 	int commandValue;
@@ -104,5 +109,3 @@ bool SignalData::hasPayload(const SignalData::Command command)
 		return false;
 	}
 }
-
-#endif // __MULTICOPTER_USER_APP__

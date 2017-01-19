@@ -4,12 +4,11 @@
 #ifndef __DEBUG_DATA__
 #define __DEBUG_DATA__
 
-#include "roboLibCore.hpp"
+#include "MathCore.hpp"
 
 #include "IMessage.hpp"
 
 #include "ControlData.hpp"
-#include "StateVector.h"
 #include "Flags.hpp"
 
 class DebugData : public IMessage
@@ -26,7 +25,14 @@ public:
 		BACK_TO_BASE = ControlData::BACK_TO_BASE,
 		VIA_ROUTE = ControlData::VIA_ROUTE,
 		STOP = ControlData::STOP,
-		APPLICATION_LOOP = 3000,
+		APPLICATION_LOOP = 3000
+	};
+
+	enum GpsFix
+	{
+		NO_FIX,
+		FIX,
+		FIX_3D
 	};
 
 	enum FlagsId // unsigned char bit ID for flags
@@ -38,16 +44,17 @@ public:
 		ERROR_HANDLING,
 		LOW_BATTERY_VOLTAGE,
 		GPS_FIX_3D,
-		GPS_FIX,
+		GPS_FIX
 	};
 
 	DebugData(void);
-	DebugData(const StateVector& stateVector);
 	DebugData(const unsigned char* src);
 
 	PreambleType getPreambleType(void) const;
 
 	void serialize(unsigned char* dst) const;
+
+    MessageType getMessageType(void) const;
 
 	unsigned getDataSize(void) const;
 
@@ -70,7 +77,7 @@ public:
 	const Flags<unsigned char>& flags(void) const;
 	Flags<unsigned char>& flags(void);
 
-	void setGpsFlags(const StateVector::GpsFix& gpsFix);
+	void setGpsFlags(const GpsFix& gpsFix);
 	void setNoConnection();
 
 	bool isGpsFixed(void) const;

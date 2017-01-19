@@ -4,7 +4,7 @@
 #ifndef __SENSORS_DATA__
 #define __SENSORS_DATA__
 
-#include "roboLibCore.hpp"
+#include "MathCore.hpp"
 
 #include "IMessage.hpp"
 
@@ -35,6 +35,8 @@ public:
 	PreambleType getPreambleType(void) const;
 
 	void serialize(unsigned char* tab) const;
+
+    MessageType getMessageType(void) const;
 
 	unsigned getDataSize(void) const;
 

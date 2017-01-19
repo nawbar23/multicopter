@@ -10,7 +10,7 @@ public abstract class CommInterface {
 
     protected CommInterfaceListener listener;
 
-    void setListener(CommInterfaceListener listener) {
+    public void setListener(CommInterfaceListener listener) {
         this.listener = listener;
     }
 

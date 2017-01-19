@@ -34,7 +34,7 @@ public class Flags {
         if (id > size) {
             throw new Exception("Id to get flag state out of range!");
         }
-        return (flags & (1 << id)) == 1;
+        return (flags & (1 << id)) != 0;
     }
 
     public int getSize() {

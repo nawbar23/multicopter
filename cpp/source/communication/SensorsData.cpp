@@ -25,6 +25,11 @@ void SensorsData::serialize(unsigned char* dst) const
 	memcpy(dst, (unsigned char*)this + 4, getDataSize());
 }
 
+IMessage::MessageType SensorsData::getMessageType(void) const
+{
+    return SENSORS_DATA;
+}
+
 unsigned SensorsData::getDataSize(void) const
 {
 	return sizeof(SensorsData) - 4;

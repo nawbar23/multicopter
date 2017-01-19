@@ -14,6 +14,7 @@ ICommHandler::~ICommHandler(void)
 void ICommHandler::initialize(ICommInterface* _commInterface)
 {
 	commInterface = _commInterface;
+    clearCounters();
 	commDispatcher.reset();
 	sentMessages = 0;
 }
@@ -227,6 +228,7 @@ bool ICommHandler::waitForAnyCommand(SignalData& command, const unsigned timeout
 		{
 			return false;
 		}
+		holdThread(10);
     }
 }
 
@@ -337,31 +339,35 @@ bool ICommHandler::receiveDataProcedure(ISignalPayloadMessage& data)
 				Tracer::Trace("receiveDataProcedure::Bad CRC!", true);
 #endif
 				retransmissionCounter++;
+				if (retransmissionCounter >= MAX_RETRANSMISSION + 1)
+				{
+					// failed after max retransmissions
+					break;
+				}
 				send(SignalData(data.getSignalDataCommand(), SignalData::BAD_CRC));
 				resetTimer();
 			}
 		}
 		if (getTimerValue() > DEFAULT_TIMEOUT)
 		{
-			if (retransmissionCounter >= MAX_RETRANSMISSION)
+#ifdef TRACER_H_
+			Tracer::Trace("receiveDataProcedure::Timeout!", true);
+#endif
+			retransmissionCounter++;
+			if (retransmissionCounter >= MAX_RETRANSMISSION + 1)
 			{
 				// failed after max retransmissions
-#ifdef TRACER_H_
-				Tracer::Trace("receiveDataProcedure::Max retransmissions reached!", true);
-#endif
-				return false;
+				break;
 			}
-			else
-			{
-#ifdef TRACER_H_
-				Tracer::Trace("receiveDataProcedure::Timeout!", true);
-#endif
-				retransmissionCounter++;
-				send(SignalData(data.getSignalDataCommand(), SignalData::TIMEOUT));
-				resetTimer();
-			}
+			send(SignalData(data.getSignalDataCommand(), SignalData::TIMEOUT));
+			resetTimer();
 		}
+		holdThread(10);
 	}
+#ifdef TRACER_H_
+	Tracer::Trace("receiveDataProcedure::Max retransmissions reached!", true);
+#endif
+	return false;
 }
 
 bool ICommHandler::sendSignalData(const unsigned char* data, const unsigned dataSize, const SignalData::Command type)

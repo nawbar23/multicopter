@@ -1,6 +1,7 @@
 package com.multicopter.java;
 
 import com.multicopter.java.data.*;
+import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
 import com.multicopter.java.events.SignalPayloadEvent;
 
@@ -29,10 +30,10 @@ public class CommDispatcher {
     private int signalDataPacketsToReceive;
     private int signalDataPacketsReceived;
 
-    private CommHandler commHandler;
+    private CommDispatcherListener listener;
 
-    public CommDispatcher(CommHandler commHandler) {
-        this.commHandler = commHandler;
+    public CommDispatcher(CommDispatcherListener listener) {
+        this.listener = listener;
         reset();
     }
 
@@ -101,7 +102,7 @@ public class CommDispatcher {
                         if (isSignalDataComplete()) {
                             receivingSignalData = false;
                             // signal data payload received successfully
-                            commHandler.handleCommEvent(
+                            listener.handleCommEvent(
                                     new SignalPayloadEvent(signalPayloadMessageFactory()));
                         }
                     } else {
@@ -111,7 +112,7 @@ public class CommDispatcher {
                         }
                         receivingSignalData = false;
                         // preamble message payload received successfully
-                        commHandler.handleCommEvent(
+                        listener.handleCommEvent(
                                 new MessageEvent(new CommMessage(activePreambleType, dataBuffer)));
                     }
                 } else {
@@ -150,10 +151,6 @@ public class CommDispatcher {
     }
 
     private void activatePreamble(final CommMessage.MessageType preambleType) {
-//        for (int i = 0; i < CommMessage.PREAMBLE_SIZE - 1; i++) {
-//            preambleBuffer[0] = 0;
-//        }
-
         isPreambleActive = true;
         activePreambleType = preambleType;
 
@@ -237,5 +234,9 @@ public class CommDispatcher {
 
     public int getSuccessfulReceptionCounter() {
         return successfulReceptionCounter;
+    }
+
+    public interface CommDispatcherListener {
+        void handleCommEvent(CommEvent event);
     }
 }
