@@ -183,7 +183,7 @@ public class SignalData {
         NON_STATIC(1000022),
         NOT_ALLOWED(1000023),
 
-        BAD_CRC(1000024),
+        DATA_INVALID(1000024),
         TIMEOUT(1000025);
 
         private final int value;
@@ -211,7 +211,7 @@ public class SignalData {
             else if (value == SKIP.getValue()) return SKIP;
             else if (value == NON_STATIC.getValue()) return NON_STATIC;
             else if (value == NOT_ALLOWED.getValue()) return NOT_ALLOWED;
-            else if (value == BAD_CRC.getValue()) return BAD_CRC;
+            else if (value == DATA_INVALID.getValue()) return DATA_INVALID;
             else if (value == TIMEOUT.getValue()) return TIMEOUT;
             else return DUMMY_PARAMETER; // TODO throw some exception
         }

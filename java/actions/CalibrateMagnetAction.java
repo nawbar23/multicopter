@@ -107,8 +107,8 @@ public class CalibrateMagnetAction extends CommHandlerAction {
                         commHandler.notifyActionDone();
                     } else {
                         commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Magnetometer calibration failed!"));
-                        System.out.println("Calibration settings received but the data is invalid, responding with BAD_CRC");
-                        commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.BAD_CRC).getMessage());
+                        System.out.println("Calibration settings received but the data is invalid, responding with DATA_INVALID");
+                        commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.DATA_INVALID).getMessage());
                         calibrationProcedureDone = true;
                         commHandler.notifyActionDone();
                     }
