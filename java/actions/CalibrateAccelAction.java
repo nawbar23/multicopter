@@ -101,8 +101,8 @@ public class CalibrateAccelAction extends CommHandlerAction {
                         calibrationProcedureDone = true;
                         commHandler.notifyActionDone();
                     } else {
-                        System.out.println("Calibration settings received but the data is invalid, responding with BAD_CRC");
-                        commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.BAD_CRC).getMessage());
+                        System.out.println("Calibration settings received but the data is invalid, responding with DATA_INVALID");
+                        commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.DATA_INVALID).getMessage());
                     }
                 } else {
                     System.out.println("Unexpected event received at state " + state.toString());
