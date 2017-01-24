@@ -12,7 +12,7 @@ import java.util.Arrays;
  */
 public class CalibrationSettings implements SignalPayloadData {
 
-    private  float[] gyroOffset; // Vect3Df
+    private float[] gyroOffset; // Vect3Df
     private float[] accelCalib; // Mat3Df
     private float[] magnetSoft; // Mat3Df
     private float[] magnetHard; // Vect3Df
@@ -147,6 +147,54 @@ public class CalibrationSettings implements SignalPayloadData {
         return dataArray;
     }
 
+    public void setGyroOffset(float[] gyroOffset) {
+        this.gyroOffset = gyroOffset;
+    }
+
+    public void setAccelCalib(float[] accelCalib) {
+        this.accelCalib = accelCalib;
+    }
+
+    public void setMagnetSoft(float[] magnetSoft) {
+        this.magnetSoft = magnetSoft;
+    }
+
+    public void setMagnetHard(float[] magnetHard) {
+        this.magnetHard = magnetHard;
+    }
+
+    public void setAltimeterSetting(float altimeterSetting) {
+        this.altimeterSetting = altimeterSetting;
+    }
+
+    public void setTemperatureSetting(float temperatureSetting) {
+        this.temperatureSetting = temperatureSetting;
+    }
+
+    public void setRadioLevels(float[] radioLevels) {
+        this.radioLevels = radioLevels;
+    }
+
+    public void setPwmInputLevels(byte[] pwmInputLevels) {
+        this.pwmInputLevels = pwmInputLevels;
+    }
+
+    public void setBoardTypeValue(int boardTypeValue) {
+        this.boardTypeValue = boardTypeValue;
+    }
+
+    public void setFlags(Flags flags) {
+        this.flags = flags;
+    }
+
+    public void setFlagState(FlagId id, boolean state) {
+        flags.setFlagsState(id.getValue(), state);
+    }
+
+    public void setCrc() {
+        this.crcValue = computeCrc();
+    }
+
     public float[] getGyroOffset() {
         return gyroOffset;
     }
@@ -183,8 +231,8 @@ public class CalibrationSettings implements SignalPayloadData {
         return BoardType.getBoardType(boardTypeValue);
     }
 
-    public Flags getFlags() {
-        return flags;
+    public boolean getFlagState(FlagId id) {
+        return flags.getFlagState(id.getValue());
     }
 
     public enum BoardType

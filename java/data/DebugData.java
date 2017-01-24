@@ -78,11 +78,21 @@ public class DebugData {
     }
 
     public float getYaw() {
-        return yaw + (float)Math.PI;
+        return yaw;
     }
 
     public void setYaw(float yaw) {
         this.yaw = yaw;
+    }
+
+    public float getNormalYaw() {
+        float yaw = this.yaw;
+        if (yaw > 2 * Math.PI) {
+            yaw -= (float)(2 * Math.PI);
+        } else if (yaw < 0.0f) {
+            yaw += (float)(2 * Math.PI);
+        }
+        return yaw;
     }
 
     public float getLatitude() {
@@ -134,20 +144,11 @@ public class DebugData {
     }
 
     public boolean getFlagState(FlagId id) {
-        try {
-            return flags.getFlagState(id.getValue());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return flags.getFlagState(id.getValue());
     }
 
     public void setFLagState(FlagId id, boolean state) {
-        try {
-            flags.setFlagsState(id.getValue(), state);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        flags.setFlagsState(id.getValue(), state);
     }
 
     public void setSolverMode(final ControlData.SolverMode solverMode)
@@ -266,11 +267,14 @@ public class DebugData {
     }
 
     public enum FlagId {
-        GPS_FIX(0),
-        GPS_FIX_3D(1),
-        LOW_BATTERY_VOLTAGE(2),
-        ERROR_HANDLING(3),
-        AUTOPILOT_USED(4);
+        SOLVER_1(0),
+        SOLVER_2(1),
+        AUTOLANDING_ENABLED(2),
+        AUTOPILOT_ENABLED(3),
+        ERROR_HANDLING(4),
+        LOW_BATTERY_VOLTAGE(5),
+        GPS_FIX_3D(6),
+        GPS_FIX(7);
 
         private final int value;
 

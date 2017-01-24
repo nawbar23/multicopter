@@ -39,12 +39,14 @@ public abstract class CommTask {
         //Log.e(DEBUG_TAG, "Starting " + getTaskName() + " task with freq: " + String.valueOf(freq) + " Hz, and delay: " + String.valueOf(delay) + " ms");
         timer.scheduleAtFixedRate(timerTask, delay, period);
         isRunning = true;
+        onStarted();
     }
 
     public void stop() {
         System.out.println("Stopping task: " + getTaskName());
         timer.cancel();
         isRunning = false;
+        onStopped();
     }
 
     public void restart() {

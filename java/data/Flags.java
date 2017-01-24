@@ -19,9 +19,9 @@ public class Flags {
         this.flags = initial;
     }
 
-    void setFlagsState(int id, boolean state) throws Exception{
+    void setFlagsState(int id, boolean state) {
         if (id > size) {
-            throw new Exception("Id to set flag state out of range!");
+            return;
         }
         if (state) {
             flags |= 1 << id;
@@ -30,11 +30,8 @@ public class Flags {
         }
     }
 
-    boolean getFlagState(int id) throws Exception{
-        if (id > size) {
-            throw new Exception("Id to get flag state out of range!");
-        }
-        return (flags & (1 << id)) != 0;
+    boolean getFlagState(int id) {
+        return id <= size && (flags & (1 << id)) != 0;
     }
 
     public int getSize() {
