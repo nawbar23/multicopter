@@ -69,4 +69,12 @@ public abstract class CommTask {
     protected abstract String getTaskName();
 
     protected abstract void task();
+
+    protected void onStarted() {
+        // nothing to do here, user can override
+    }
+
+    protected void onStopped() {
+        // nothing to do here, user can override
+    }
 }
