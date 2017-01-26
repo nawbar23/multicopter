@@ -1,6 +1,7 @@
 package com.multicopter.java;
 
 import com.multicopter.java.actions.*;
+import com.multicopter.java.data.ControlData;
 import com.multicopter.java.data.SignalData;
 import com.multicopter.java.data.SignalPayloadData;
 import com.multicopter.java.events.CommEvent;
@@ -24,9 +25,11 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
     private UavManager uavManager;
 
     private List<CommTask> runningTasks;
-    
 
-    public CommHandler(UavManager uavManager, CommInterface commInterface){
+    private CommTask controlTask;
+    private CommTask pingTask;
+
+    public CommHandler(UavManager uavManager, CommInterface commInterface, double controlFreq, double pingFreq) {
         this.commHandlerAction = new IdleAction(this);
         this.commInterface = commInterface;
         this.commInterface.setListener(this);
@@ -35,6 +38,47 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
         this.uavManager = uavManager;
 
         this.runningTasks = new ArrayList<>();
+
+        controlTask = new CommTask(controlFreq) {
+            @Override
+            protected String getTaskName() {
+                return "control_task";
+            }
+
+            @Override
+            protected void task() {
+                ControlData controlData = getUavManager().getCurrentControlData();
+                if (((FlightLoopAction)commHandlerAction).isBreaking()) {
+                    controlData.setStopCommand();
+                }
+                System.out.println("Controlling: " + controlData.toString());
+                send(controlData.getMessage());
+            }
+        };
+
+        pingTask = new CommTask(pingFreq) {
+            @Override
+            protected String getTaskName() {
+                return "ping_task";
+            }
+
+            @Override
+            protected void task() {
+                System.out.println("CommHandler: Pinging...");
+                switch (state) {
+                    case CONFIRMED:
+                        sentPing = new SignalData(SignalData.Command.PING_VALUE, (int) (Math.random() * 1000000000));
+                        send(sentPing.getMessage());
+                        timestamp = System.currentTimeMillis();
+                        break;
+
+                    case WAITING:
+                        System.out.println("CommHandler: Ping receiving timeout");
+                        state = PingTaskState.CONFIRMED;
+                        break;
+                }
+            }
+        };
     }
 
     public void connectSocket(String ipAddress, int port) {
@@ -49,7 +93,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
     }
 
     void preformAction(CommHandlerAction.ActionType actionType) throws Exception {
-        if (commHandlerAction.isActionDone()){
+        if (commHandlerAction.isActionDone()) {
             commHandlerAction = actionFactory(actionType, null);
             commHandlerAction.start();
         } else {
@@ -58,7 +102,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
     }
 
     void preformActionUpload(CommHandlerAction.ActionType actionType, SignalPayloadData dataToUpload) throws Exception {
-        if (commHandlerAction.isActionDone()){
+        if (commHandlerAction.isActionDone()) {
             commHandlerAction = actionFactory(actionType, dataToUpload);
             commHandlerAction.start();
         } else {
@@ -75,12 +119,12 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
     }
 
     @Override
-    public void handleCommEvent(CommEvent event){
+    public void handleCommEvent(CommEvent event) {
         System.out.println("CommHandler: Event " + event.toString() + " received at action " + commHandlerAction.toString());
         switch (event.getType()) {
             case MESSAGE_RECEIVED:
-                if (((MessageEvent)event).getMessageType() == CommMessage.MessageType.SIGNAL) {
-                    SignalData signalData = new SignalData(((MessageEvent)event).getMessage());
+                if (((MessageEvent) event).getMessageType() == CommMessage.MessageType.SIGNAL) {
+                    SignalData signalData = new SignalData(((MessageEvent) event).getMessage());
                     if (signalData.getCommand() == SignalData.Command.PING_VALUE) {
                         uavManager.setCommDelay(handlePongReception(signalData));
                         return;
@@ -100,7 +144,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
         return uavManager;
     }
 
-    public CommHandlerAction.ActionType getCommActionType(){
+    public CommHandlerAction.ActionType getCommActionType() {
         return commHandlerAction.getActionType();
     }
 
@@ -119,7 +163,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
     }
 
     private CommHandlerAction actionFactory(CommHandlerAction.ActionType actionType, SignalPayloadData data) throws Exception {
-        switch (actionType){
+        switch (actionType) {
             case IDLE:
                 return new IdleAction(this);
             case CONNECT:
@@ -174,31 +218,6 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
 
     private PingTaskState state = PingTaskState.CONFIRMED;
 
-    private CommTask pingTask = new CommTask(0.5) {
-
-        @Override
-        protected String getTaskName() {
-            return "ping_task";
-        }
-
-        @Override
-        protected void task() {
-            System.out.println("CommHandler: Pinging...");
-            switch (state) {
-                case CONFIRMED:
-                    sentPing = new SignalData(SignalData.Command.PING_VALUE, (int) (Math.random() * 1000000000));
-                    send(sentPing.getMessage());
-                    timestamp = System.currentTimeMillis();
-                    break;
-
-                case WAITING:
-                    System.out.println("CommHandler: Ping receiving timeout");
-                    state = PingTaskState.CONFIRMED;
-                    break;
-            }
-        }
-    };
-
     private long handlePongReception(final SignalData pingPongMessage) {
         if (pingPongMessage.getParameterValue() == sentPing.getParameterValue()) {
             // valid ping measurement, compute ping time
@@ -234,5 +253,9 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
         for (CommTask task : runningTasks) {
             stopCommTask(task);
         }
+    }
+
+    public CommTask getControlTask() {
+        return controlTask;
     }
 }

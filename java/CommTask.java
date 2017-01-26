@@ -49,23 +49,12 @@ public abstract class CommTask {
         onStopped();
     }
 
-    public void restart() {
-        restart(frequency);
-    }
-
-    private void restart(double freq) {
-        stop();
-        start(freq);
-    }
-
     public void setFrequency(double frequency) {
         this.frequency = frequency;
-        stop();
-        start();
-    }
-
-    public boolean isRunning() {
-        return isRunning;
+        if (isRunning) {
+            stop();
+            start();
+        }
     }
 
     protected abstract String getTaskName();

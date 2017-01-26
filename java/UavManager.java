@@ -32,10 +32,10 @@ public class UavManager {
 
     private ControlDataSource controlDataSource;
 
-    public UavManager(CommInterface commInterface) {
+    public UavManager(CommInterface commInterface, double controlFreq, double pingFreq) {
         this.listeners = new ArrayList<>();
         this.commDelay = 0;
-        this.commHandler = new CommHandler(this, commInterface);
+        this.commHandler = new CommHandler(this, commInterface, controlFreq, pingFreq);
     }
 
     public CommHandler getCommHandler() {
@@ -177,8 +177,7 @@ public class UavManager {
     public void notifyUavEvent(UavEvent event) {
         try {
             updateCommState(event);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("UavManager update comm state error: " + e.getMessage());
         }
         for (UavManagerListener listener : listeners) {

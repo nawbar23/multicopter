@@ -26,10 +26,11 @@ public class FlightLoopAction extends CommHandlerAction {
 
     private boolean flightLoopDone;
 
-    public FlightLoopAction(CommHandler commHandler) {
+    public FlightLoopAction(final CommHandler commHandler) {
         super(commHandler);
         state = FlightLoopState.IDLE;
         flightLoopDone = false;
+
     }
 
     @Override
@@ -64,7 +65,7 @@ public class FlightLoopAction extends CommHandlerAction {
                                 state = FlightLoopState.FLING;
 
                                 commHandler.startCommTask(commHandler.getPingTask());
-                                commHandler.startCommTask(controlTask);
+                                commHandler.startCommTask(commHandler.getControlTask());
 
                                 commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_STARTED));
                                 commHandler.send(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.READY).getMessage());
@@ -112,7 +113,7 @@ public class FlightLoopAction extends CommHandlerAction {
     private void handleSignalWhileFlying(final SignalData command) {
         if (command.getCommand() == SignalData.Command.FLIGHT_LOOP) {
 
-            commHandler.stopCommTask(controlTask);
+            commHandler.stopCommTask(commHandler.getControlTask());
             commHandler.stopCommTask(commHandler.getPingTask());
 
             state = FlightLoopState.IDLE;
@@ -139,20 +140,7 @@ public class FlightLoopAction extends CommHandlerAction {
         return ActionType.FLIGHT_LOOP;
     }
 
-    private CommTask controlTask = new CommTask(20) {
-        @Override
-        protected String getTaskName() {
-            return "control_task";
-        }
-
-        @Override
-        protected void task() {
-            ControlData controlData = commHandler.getUavManager().getCurrentControlData();
-            if (state == FlightLoopState.BREAKING) {
-                controlData.setStopCommand();
-            }
-            System.out.println("Controlling: " + controlData.toString());
-            commHandler.send(controlData.getMessage());
-        }
-    };
+    public boolean isBreaking(){
+        return state == FlightLoopState.BREAKING;
+    }
 }
