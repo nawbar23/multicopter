@@ -37,9 +37,9 @@ public class CommDispatcher {
         reset();
     }
 
-    public void proceedReceiving(byte[] data) {
-        for (byte b : data) {
-            proceedByte(b);
+    public void proceedReceiving(final byte[] data, final int dataSize) {
+        for (int i = 0; i < dataSize; i++) {
+            proceedByte(data[i]);
         }
     }
 
