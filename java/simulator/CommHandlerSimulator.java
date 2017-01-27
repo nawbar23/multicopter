@@ -9,6 +9,7 @@ import com.multicopter.java.events.MessageEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.Lock;
@@ -146,6 +147,7 @@ public class CommHandlerSimulator implements CommInterface.CommInterfaceListener
 
     @Override
     public void onDataReceived(byte[] data) {
+        System.out.println(Arrays.toString(data));
         dispatcher.proceedReceiving(data);
     }
 
