@@ -28,6 +28,6 @@ public abstract class CommInterface {
 
         void onError(IOException e);
 
-        void onDataReceived(final byte[] data);
+        void onDataReceived(final byte[] data, final int dataSize);
     }
 }

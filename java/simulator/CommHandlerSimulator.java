@@ -146,9 +146,8 @@ public class CommHandlerSimulator implements CommInterface.CommInterfaceListener
     }
 
     @Override
-    public void onDataReceived(byte[] data) {
-        System.out.println(Arrays.toString(data));
-        dispatcher.proceedReceiving(data);
+    public void onDataReceived(final byte[] data, final int dataSize) {
+        dispatcher.proceedReceiving(data, dataSize);
     }
 
     public enum ConnectionStage {
