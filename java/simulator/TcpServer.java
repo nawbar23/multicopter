@@ -1,13 +1,8 @@
 package com.multicopter.java.simulator;
 
-
-import com.addrone.AdapterMain;
-import com.addrone.ServerMain;
-
+import com.multicopter.java.CommDispatcher;
 import com.multicopter.java.CommInterface;
 import com.multicopter.java.CommMessage;
-
-
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -19,11 +14,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Created by ebarnaw on 2017-01-03.
  */
-public class TcpPeer extends CommInterface implements Runnable  {
-
-    //tylko do dzialania adaptera, pozniej zostanie tylko serwer.
-    private AdapterMain adapterMain;
-    private ServerMain serverMain;
+public class TcpServer extends CommInterface implements Runnable  {
 
     private ExecutorService executorService;
 
@@ -38,15 +29,13 @@ public class TcpPeer extends CommInterface implements Runnable  {
 
     private boolean adapterMode;
 
-    public TcpPeer(ExecutorService executorService, ServerMain serverMain) {
+    public TcpServer(ExecutorService executorService) {
         super();
-        this.serverMain = serverMain;
         this.executorService = executorService;
         this.state = State.DISCONNECTED;
     }
 
-    public TcpPeer(ExecutorService executorService, boolean adapterMode, AdapterMain adapterMain){
-        this.adapterMain = adapterMain;
+    public TcpServer(ExecutorService executorService, boolean adapterMode){
         this.executorService = executorService;
         this.state = State.DISCONNECTED;
         this.adapterMode = adapterMode;
@@ -133,22 +122,14 @@ public class TcpPeer extends CommInterface implements Runnable  {
             }
         }
 
-        if(serverSocket != null) {
-            try {
-                serverSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println(e.getMessage());
-            }
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         state = State.DISCONNECTED;
         listener.onDisconnected();
-        if(serverMain == null){
-            adapterMain.restartTcpPeer();
-        }
-        else{
-            serverMain.restartTcpPeer();
-        }
     }
 }
