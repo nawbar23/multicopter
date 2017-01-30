@@ -18,6 +18,26 @@ public class RouteContainer implements SignalPayloadData {
         float relativeAltitude;
         float velocity;
 
+        public double getLatitude() {
+            return latitude;
+        }
+
+        public double getLongitude() {
+            return longitude;
+        }
+
+        public float getAbsoluteAltitude() {
+            return absoluteAltitude;
+        }
+
+        public float getRelativeAltitude() {
+            return relativeAltitude;
+        }
+
+        public float getVelocity() {
+            return velocity;
+        }
+
         public Waypoint(double lat, double lon, float absAlt, float relAlt, float vel) {
             latitude = lat;
             longitude = lon;
@@ -173,6 +193,14 @@ public class RouteContainer implements SignalPayloadData {
 
     public float getBaseTime() {
         return baseTime;
+    }
+
+    public int getRouteSize() {
+        return routeSize;
+    }
+
+    public int getCrcValue() {
+        return crcValue;
     }
 
     public void setWaypointTime(float waypointTime) {
