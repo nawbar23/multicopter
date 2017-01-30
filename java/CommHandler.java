@@ -185,8 +185,8 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
     }
 
     @Override
-    public void onDataReceived(byte[] data) {
-        dispatcher.proceedReceiving(data);
+    public void onDataReceived(final byte[] data, final int dataSize) {
+        dispatcher.proceedReceiving(data, dataSize);
     }
 
     @Override
