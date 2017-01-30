@@ -24,6 +24,10 @@ public class UavManager {
     // settings received form board at startup connection and after calibrations
     private CalibrationSettings calibrationSettings;
 
+    // settings received from board after DOWNLOAD command
+    private ControlSettings controlSettings;
+    private RouteContainer routeContainer;
+
     // actual communication delay
     private long commDelay;
 
@@ -198,6 +202,61 @@ public class UavManager {
         }
     }
 
+    public void setDebugData(DebugData debugData) {
+        this.debugData = debugData;
+        notifyUavEvent(new UavEvent(UavEvent.Type.DEBUG_UPDATED));
+    }
+
+    public void setAutopilotData(AutopilotData autopilotData) {
+        this.autopilotData = autopilotData;
+        notifyUavEvent(new UavEvent(UavEvent.Type.AUTOPILOT_UPDATED));
+    }
+
+    public void setCalibrationSettings(CalibrationSettings calibrationSettings) {
+        this.calibrationSettings = calibrationSettings;
+        notifyUavEvent(new UavEvent(UavEvent.Type.CALIBRATION_UPDATED));
+    }
+
+    public void setControlSettings(ControlSettings controlSettings) {
+        this.controlSettings = controlSettings;
+        notifyUavEvent(new UavEvent(UavEvent.Type.CONTROL_UPDATED));
+    }
+
+    public void setRouteContainer(RouteContainer routeContainer) {
+        this.routeContainer = routeContainer;
+        notifyUavEvent(new UavEvent(UavEvent.Type.ROUTE_UPDATED));
+    }
+
+    public void setCommDelay(long commDelay) {
+        System.out.println("Ping delay updated: " + String.valueOf(commDelay) + " ms");
+        this.commDelay = commDelay;
+        notifyUavEvent(new UavEvent(UavEvent.Type.PING_UPDATED));
+    }
+
+    public DebugData getDebugData() {
+        return debugData;
+    }
+
+    public AutopilotData getAutopilotData() {
+        return autopilotData;
+    }
+
+    public CalibrationSettings getCalibrationSettings() {
+        return calibrationSettings;
+    }
+
+    public ControlSettings getControlSettings() {
+        return controlSettings;
+    }
+
+    public RouteContainer getRouteContainer() {
+        return routeContainer;
+    }
+
+    public long getCommDelay() {
+        return commDelay;
+    }
+
     public void registerListener(UavManagerListener listener) {
         listeners.add(listener);
     }
@@ -208,38 +267,6 @@ public class UavManager {
 
     public interface UavManagerListener {
         void handleUavEvent(UavEvent event, UavManager uavManager);
-    }
-
-    public DebugData getDebugData() {
-        return debugData;
-    }
-
-    public void setDebugData(DebugData debugData) {
-        this.debugData = debugData;
-        notifyUavEvent(new UavEvent(UavEvent.Type.DEBUG_UPDATED));
-    }
-
-    public CalibrationSettings getCalibrationSettings() {
-        return calibrationSettings;
-    }
-
-    public void setCalibrationSettings(CalibrationSettings calibrationSettings) {
-        this.calibrationSettings = calibrationSettings;
-        notifyUavEvent(new UavEvent(UavEvent.Type.CALIBRATION_UPDATED));
-    }
-
-    public long getCommDelay() {
-        return commDelay;
-    }
-
-    public void setCommDelay(long commDelay) {
-        System.out.println("Ping delay updated: " + String.valueOf(commDelay) + " ms");
-        this.commDelay = commDelay;
-        notifyUavEvent(new UavEvent(UavEvent.Type.PING_UPDATED));
-    }
-
-    public AutopilotData getAutopilotData() {
-        return autopilotData;
     }
 
     public interface ControlDataSource {
