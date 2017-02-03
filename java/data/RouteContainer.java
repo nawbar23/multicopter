@@ -118,6 +118,11 @@ public class RouteContainer implements SignalPayloadData {
     }
 
     @Override
+    public SignalData.Command getDataCommand() {
+        return SignalData.Command.ROUTE_CONTAINER;
+    }
+
+    @Override
     public SignalData.Command getDataType() {
         return SignalData.Command.ROUTE_CONTAINER_DATA;
     }
@@ -131,6 +136,7 @@ public class RouteContainer implements SignalPayloadData {
         return crcValue == computeCrc();
     }
 
+    @Override
     public ArrayList<CommMessage> getMessages() {
         return CommMessage.buildMessagesList(getDataType(), serialize());
     }

@@ -165,6 +165,11 @@ public class ControlSettings implements SignalPayloadData {
     }
 
     @Override
+    public SignalData.Command getDataCommand() {
+        return SignalData.Command.CONTROL_SETTINGS;
+    }
+
+    @Override
     public SignalData.Command getDataType() {
         return SignalData.Command.CONTROL_SETTINGS_DATA;
     }
@@ -178,6 +183,7 @@ public class ControlSettings implements SignalPayloadData {
         return crcValue == computeCrc();
     }
 
+    @Override
     public ArrayList<CommMessage> getMessages() {
         return CommMessage.buildMessagesList(getDataType(), serialize());
     }
