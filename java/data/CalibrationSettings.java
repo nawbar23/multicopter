@@ -90,6 +90,11 @@ public class CalibrationSettings implements SignalPayloadData {
     }
 
     @Override
+    public SignalData.Command getDataCommand() {
+        return SignalData.Command.CALIBRATION_SETTINGS;
+    }
+
+    @Override
     public SignalData.Command getDataType() {
         return SignalData.Command.CALIBRATION_SETTINGS_DATA;
     }
@@ -103,6 +108,7 @@ public class CalibrationSettings implements SignalPayloadData {
         return crcValue == computeCrc();
     }
 
+    @Override
     public ArrayList<CommMessage> getMessages() {
         return CommMessage.buildMessagesList(getDataType(), serialize());
     }
