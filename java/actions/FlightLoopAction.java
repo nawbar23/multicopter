@@ -3,11 +3,15 @@ package com.multicopter.java.actions;
 import com.multicopter.java.CommHandler;
 import com.multicopter.java.CommTask;
 import com.multicopter.java.UavEvent;
+import com.multicopter.java.data.CalibrationSettings;
 import com.multicopter.java.data.ControlData;
+import com.multicopter.java.data.ControlSettings;
 import com.multicopter.java.data.DebugData;
+import com.multicopter.java.data.RouteContainer;
 import com.multicopter.java.data.SignalData;
 import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
+import com.multicopter.java.events.SignalPayloadEvent;
 import com.multicopter.java.events.UserEvent;
 
 /**
@@ -18,6 +22,9 @@ public class FlightLoopAction extends CommHandlerAction {
     public enum FlightLoopState {
         IDLE,
         INITIAL_COMMAND,
+        WAITING_FOR_CONTROLS,
+        WAITING_FOR_ROUTE_COMMAND,
+        WAITING_FOR_ROUTE,
         FLING,
         BREAKING,
     }
@@ -62,13 +69,7 @@ public class FlightLoopAction extends CommHandlerAction {
                         case SIGNAL:
                             if (event.matchSignalData(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.ACK))) {
                                 System.out.println("Flight loop initial command successful");
-                                state = FlightLoopState.FLING;
-
-                                commHandler.startCommTask(commHandler.getPingTask());
-                                commHandler.startCommTask(commHandler.getControlTask());
-
-                                commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_STARTED));
-                                commHandler.send(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.READY).getMessage());
+                                state = FlightLoopState.WAITING_FOR_CONTROLS;
 
                             } else if (event.matchSignalData(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.NOT_ALLOWED))) {
                                 System.out.println("Flight loop not allowed!");
@@ -81,6 +82,78 @@ public class FlightLoopAction extends CommHandlerAction {
                             }
                             break;
                     }
+                }
+                break;
+
+            case WAITING_FOR_CONTROLS:
+                if (event.getType() == CommEvent.EventType.SIGNAL_PAYLOAD_RECEIVED
+                        && ((SignalPayloadEvent)event).getDataType() == SignalData.Command.CONTROL_SETTINGS_DATA) {
+
+                    ControlSettings controlSettings = (ControlSettings)((SignalPayloadEvent)event).getData();
+                    if (controlSettings.isValid()) {
+                        commHandler.send(new SignalData(SignalData.Command.CONTROL_SETTINGS, SignalData.Parameter.ACK).getMessage());
+                        System.out.println("Flight control settings received successfully");
+
+                    } else {
+                        System.out.println("Route container received but the data is invalid, responding with DATA_INVALID");
+                        commHandler.send(new SignalData(SignalData.Command.CONTROL_SETTINGS, SignalData.Parameter.DATA_INVALID).getMessage());
+                        break;
+                    }
+
+                    state = FlightLoopState.WAITING_FOR_ROUTE_COMMAND;
+
+                } else {
+                    System.out.println("Unexpected event received!!!");
+                }
+                break;
+
+            case WAITING_FOR_ROUTE_COMMAND:
+                if (event.matchSignalData(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.VIA_ROUTE_ALLOWED))) {
+                    System.out.println("Via route allowed, waiting for RouteContainer");
+                    state = FlightLoopState.WAITING_FOR_ROUTE;
+
+                } else if (event.matchSignalData(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.VIA_ROUTE_ALLOWED))) {
+                    System.out.println("Via NOT route allowed, proceeding");
+                    System.out.println("Flight loop initialization successful");
+                    state = FlightLoopState.FLING;
+
+                    commHandler.startCommTask(commHandler.getPingTask());
+                    commHandler.startCommTask(commHandler.getControlTask());
+
+                    commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_STARTED));
+                    commHandler.send(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.READY).getMessage());
+
+                } else {
+                    System.out.println("Unexpected event received!!!");
+                }
+                break;
+
+            case WAITING_FOR_ROUTE:
+                if (event.getType() == CommEvent.EventType.SIGNAL_PAYLOAD_RECEIVED
+                        && ((SignalPayloadEvent)event).getDataType() == SignalData.Command.ROUTE_CONTAINER_DATA) {
+
+                    RouteContainer routeContainer = (RouteContainer)((SignalPayloadEvent)event).getData();
+                    if (routeContainer.isValid()) {
+                        System.out.println("Flight route container received successfully");
+                        commHandler.send(new SignalData(SignalData.Command.ROUTE_CONTAINER, SignalData.Parameter.ACK).getMessage());
+
+                    } else {
+                        System.out.println("Route container received but the data is invalid, responding with DATA_INVALID");
+                        commHandler.send(new SignalData(SignalData.Command.ROUTE_CONTAINER, SignalData.Parameter.DATA_INVALID).getMessage());
+                        break;
+                    }
+
+                    System.out.println("Flight loop initialization successful");
+                    state = FlightLoopState.FLING;
+
+                    commHandler.startCommTask(commHandler.getPingTask());
+                    commHandler.startCommTask(commHandler.getControlTask());
+
+                    commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_STARTED));
+                    commHandler.send(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.READY).getMessage());
+
+                } else {
+                    System.out.println("Unexpected event received!!!");
                 }
                 break;
 
