@@ -7,6 +7,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static com.multicopter.java.data.ControlSettings.StickMovementMode.COPTER;
+
 /**
  * Created by ebarnaw on 2016-10-14.
  */
@@ -99,7 +101,7 @@ public class ControlSettings implements SignalPayloadData {
         maxAutoAngle = 0.0f;
         maxAutoVelocity = 0.0f;
         stickPositionRateProp = 0.0f;
-        stickMovementMode = StickMovementMode.COPTER.getValue();
+        stickMovementMode = COPTER.getValue();
 
         batteryType = BatteryType.UNDEFINED.getValue();
         errorHandlingAction = DebugData.ControllerState.AUTOLANDING.getValue();
@@ -284,6 +286,15 @@ public class ControlSettings implements SignalPayloadData {
         int getValue(){
             return value;
         }
+
+        public static ThrottleMode getThrottleMode(final int value) {
+            for (ThrottleMode throttleMode : ThrottleMode.values()) {
+                if (throttleMode.getValue() == value) {
+                    return throttleMode;
+                }
+            }
+            return DYNAMIC; // TODO throw some exception
+        }
     }
 
     public enum StickMovementMode
@@ -301,7 +312,18 @@ public class ControlSettings implements SignalPayloadData {
         int getValue(){
             return value;
         }
+
+        public static StickMovementMode getStickMovementMode(final int value) {
+            for (StickMovementMode stickMovementMode : StickMovementMode.values()) {
+                if (stickMovementMode.getValue() == value) {
+                    return stickMovementMode;
+                }
+            }
+            return COPTER; // TODO throw some exception
+        }
     }
+
+
 
     public enum BatteryType
     {
@@ -320,6 +342,15 @@ public class ControlSettings implements SignalPayloadData {
 
         int getValue(){
             return value;
+        }
+
+        public static BatteryType getBatteryType(final int value) {
+            for (BatteryType batteryType : BatteryType.values()) {
+                if (batteryType.getValue() == value) {
+                    return batteryType;
+                }
+            }
+            return UNDEFINED; // TODO throw some exception
         }
     }
 
