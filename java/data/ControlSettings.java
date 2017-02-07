@@ -262,7 +262,7 @@ public class ControlSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
         }
 
@@ -289,7 +289,7 @@ public class ControlSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
         }
 
@@ -315,7 +315,7 @@ public class ControlSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
         }
 
@@ -346,7 +346,7 @@ public class ControlSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
         }
 
