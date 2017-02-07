@@ -153,6 +153,10 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
         commInterface.send(message.getByteArray());
     }
 
+    public void send(final SignalPayloadData data) {
+        data.getMessages().forEach(this::send);
+    }
+
     public void notifyActionDone() {
         System.out.println("CommHandler: notifyActionDone");
         try {
