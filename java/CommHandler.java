@@ -178,6 +178,8 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
                 return new CalibrateAccelAction(this);
             case CALIBRATE_MAGNETOMETER:
                 return new CalibrateMagnetAction(this);
+            case DOWNLOAD_CONTROL_SETTINGS:
+                return new DownloadControlSettingsAction(this);
 
             default:
                 throw new Exception("CommHandler: Unsupported action type");
