@@ -1,9 +1,6 @@
 package com.multicopter.java.actions;
 
 import com.multicopter.java.CommHandler;
-import com.multicopter.java.UavEvent;
-import com.multicopter.java.data.CalibrationSettings;
-import com.multicopter.java.data.ControlData;
 import com.multicopter.java.data.ControlSettings;
 import com.multicopter.java.data.DebugData;
 import com.multicopter.java.data.SignalData;
@@ -20,7 +17,6 @@ public class DownloadControlSettingsAction extends CommHandlerAction {
     private enum DownloadState {
         IDLE,
         INITIAL_COMAND,
-        WAITING_FOR_CONTROL_SETTINGS,
         WAITING_FOR_CONTROL_SETTINGS_DATA
     }
 
