@@ -165,6 +165,7 @@ public class UavManager {
             commHandler.preformAction(actionType);
         } catch (Exception e) {
             System.out.println("UavManager exception: " + e.toString());
+            e.printStackTrace();
             notifyUavEvent(new UavEvent(UavEvent.Type.ERROR, e.getMessage()));
         }
     }
@@ -174,6 +175,7 @@ public class UavManager {
             commHandler.preformActionUpload(actionType, dataToUpload);
         } catch (Exception e) {
             System.out.println("UavManager exception: " + e.toString());
+            e.printStackTrace();
             notifyUavEvent(new UavEvent(UavEvent.Type.ERROR, e.getMessage()));
         }
     }

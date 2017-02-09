@@ -2,6 +2,7 @@ package com.multicopter.java;
 
 import com.multicopter.java.actions.*;
 import com.multicopter.java.data.ControlData;
+import com.multicopter.java.data.ControlSettings;
 import com.multicopter.java.data.SignalData;
 import com.multicopter.java.data.SignalPayloadData;
 import com.multicopter.java.events.CommEvent;
@@ -186,6 +187,8 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
                 return new CalibrateMagnetAction(this);
             case DOWNLOAD_CONTROL_SETTINGS:
                 return new DownloadControlSettingsAction(this);
+            case UPLOAD_CONTROL_SETTINGS:
+                return new UploadControlSettingsAction(this,data);
 
             default:
                 throw new Exception("CommHandler: Unsupported action type");
