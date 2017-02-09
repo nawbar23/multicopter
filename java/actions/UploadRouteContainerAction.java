@@ -68,16 +68,16 @@ public class UploadRouteContainerAction extends CommHandlerAction {
                 }
                 break;
             case UPLOADING_DATA:
-                if (event.matchSignalData(new SignalData(SignalData.Command.UPLOAD_SETTINGS, SignalData.Parameter.ACK))) {
+                if (event.matchSignalData(new SignalData(SignalData.Command.ROUTE_CONTAINER, SignalData.Parameter.ACK))) {
                     System.out.println("Route Container settings uploaded");
                     commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Route Container settings uploaded successfully!"));
                     uploadProcedureDone = true;
                     commHandler.notifyActionDone();
-                } else if (event.matchSignalData(new SignalData(SignalData.Command.UPLOAD_SETTINGS, SignalData.Parameter.DATA_INVALID))) {
+                } else if (event.matchSignalData(new SignalData(SignalData.Command.ROUTE_CONTAINER, SignalData.Parameter.DATA_INVALID))) {
                     commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Uploading Route Container settings failed!"));
                     System.out.println("Route Container settings sent but the data is invalid, responding with DATA_INVALID");
                     commHandler.send(routeContainerToUpload);
-                } else if (event.matchSignalData(new SignalData(SignalData.Command.UPLOAD_SETTINGS, SignalData.Parameter.TIMEOUT))){
+                } else if (event.matchSignalData(new SignalData(SignalData.Command.ROUTE_CONTAINER, SignalData.Parameter.TIMEOUT))){
                     commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Uploading Route Container settings timeout!"));
                     System.out.println("Uploading Route Container procedure timeout, responding with TIMEOUT");
                     commHandler.send(routeContainerToUpload);
