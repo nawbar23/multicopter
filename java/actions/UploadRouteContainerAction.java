@@ -1,14 +1,12 @@
 package com.multicopter.java.actions;
 
 import com.multicopter.java.CommHandler;
-import com.multicopter.java.CommMessage;
 import com.multicopter.java.UavEvent;
 import com.multicopter.java.data.DebugData;
 import com.multicopter.java.data.RouteContainer;
 import com.multicopter.java.data.SignalData;
 import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
-import com.multicopter.java.events.SignalPayloadEvent;
 
 /**
  * Created by nawba on 12.01.2017.
@@ -24,13 +22,14 @@ public class UploadRouteContainerAction extends CommHandlerAction {
     }
 
     private UploadState state;
-
+    private boolean uploadProcedureDone;
     private RouteContainer routeContainerToUpload;
 
     public UploadRouteContainerAction(CommHandler commHandler, RouteContainer routeContainerToUpload) {
         super(commHandler);
         this.state = UploadState.IDLE;
         this.routeContainerToUpload = routeContainerToUpload;
+        uploadProcedureDone = false;
     }
 
     @Override
@@ -38,7 +37,6 @@ public class UploadRouteContainerAction extends CommHandlerAction {
         state = UploadState.INITIAL_COMMAND;
         commHandler.stopCommTask(commHandler.getPingTask());
         commHandler.send(new SignalData(SignalData.Command.UPLOAD_ROUTE, SignalData.Parameter.START).getMessage());
-
     }
 
     @Override
@@ -61,6 +59,7 @@ public class UploadRouteContainerAction extends CommHandlerAction {
                             if (event.matchSignalData(new SignalData(SignalData.Command.UPLOAD_ROUTE, SignalData.Parameter.ACK))) {
                                 System.out.println("Starting Route Container upload procedure");
                                 state = UploadState.UPLOADING_DATA;
+                                commHandler.send(routeContainerToUpload);
                             } else {
                                 System.out.println("Unexpected event received at state " + state.toString());
                             }
@@ -69,20 +68,19 @@ public class UploadRouteContainerAction extends CommHandlerAction {
                 }
                 break;
             case UPLOADING_DATA:
-                if (event.getType() == CommEvent.EventType.SIGNAL_PAYLOAD_RECEIVED
-                        && ((SignalPayloadEvent)event).getDataType() == SignalData.Command.ROUTE_CONTAINER_DATA) {
-                    if (routeContainerToUpload.isValid()) {
-                        System.out.println("Route Container settings uploaded");
-                        commHandler.send(new SignalData(SignalData.Command.UPLOAD_SETTINGS, SignalData.Parameter.ACK).getMessage());
-                        commHandler.send(routeContainerToUpload);
-                        commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Route Container settings uploaded successfully!"));
-                        commHandler.notifyActionDone();
-                    } else {
-                        commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Uploading Route Container settings failed!"));
-                        System.out.println("Route Container settings sent but the data is invalid, responding with DATA_INVALID");
-                        commHandler.send(new SignalData(SignalData.Command.UPLOAD_SETTINGS, SignalData.Parameter.DATA_INVALID).getMessage());
-                        commHandler.notifyActionDone();
-                    }
+                if (event.matchSignalData(new SignalData(SignalData.Command.UPLOAD_SETTINGS, SignalData.Parameter.ACK))) {
+                    System.out.println("Route Container settings uploaded");
+                    commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Route Container settings uploaded successfully!"));
+                    uploadProcedureDone = true;
+                    commHandler.notifyActionDone();
+                } else if (event.matchSignalData(new SignalData(SignalData.Command.UPLOAD_SETTINGS, SignalData.Parameter.DATA_INVALID))) {
+                    commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Uploading Route Container settings failed!"));
+                    System.out.println("Route Container settings sent but the data is invalid, responding with DATA_INVALID");
+                    commHandler.send(routeContainerToUpload);
+                } else if (event.matchSignalData(new SignalData(SignalData.Command.UPLOAD_SETTINGS, SignalData.Parameter.TIMEOUT))){
+                    commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Uploading Route Container settings timeout!"));
+                    System.out.println("Uploading Route Container procedure timeout, responding with TIMEOUT");
+                    commHandler.send(routeContainerToUpload);
                 } else {
                     System.out.println("Unexpected event received at state " + state.toString());
                 }
