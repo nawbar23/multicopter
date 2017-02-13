@@ -248,7 +248,8 @@ public class ControlSettings implements SignalPayloadData {
 
     public enum UavType
     {
-        TRICOPTER(1000),
+        TRICOPTER_REAR(1000),
+        TRICOPTER_FRONT(1500),
         QUADROCOPTER_X(2000),
         QUADROCOPTER_PLUS(2500),
         HEXACOPTER_X(3000),
