@@ -189,6 +189,10 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
                 return new DownloadControlSettingsAction(this);
             case UPLOAD_CONTROL_SETTINGS:
                 return new UploadControlSettingsAction(this,data);
+            case DOWNLOAD_ROUTE_CONTAINER:
+                return new DownloadRouteContainerAction(this);
+            case UPLOAD_ROUTE_CONTAINER:
+                return new UploadRouteContainerAction(this, data);
 
             default:
                 throw new Exception("CommHandler: Unsupported action type");

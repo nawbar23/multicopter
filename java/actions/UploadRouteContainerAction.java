@@ -3,8 +3,8 @@ package com.multicopter.java.actions;
 import com.multicopter.java.CommHandler;
 import com.multicopter.java.UavEvent;
 import com.multicopter.java.data.DebugData;
-import com.multicopter.java.data.RouteContainer;
 import com.multicopter.java.data.SignalData;
+import com.multicopter.java.data.SignalPayloadData;
 import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
 
@@ -23,9 +23,9 @@ public class UploadRouteContainerAction extends CommHandlerAction {
 
     private UploadState state;
     private boolean uploadProcedureDone;
-    private RouteContainer routeContainerToUpload;
+    private SignalPayloadData routeContainerToUpload;
 
-    public UploadRouteContainerAction(CommHandler commHandler, RouteContainer routeContainerToUpload) {
+    public UploadRouteContainerAction(CommHandler commHandler, SignalPayloadData routeContainerToUpload) {
         super(commHandler);
         this.state = UploadState.IDLE;
         this.routeContainerToUpload = routeContainerToUpload;
@@ -41,7 +41,7 @@ public class UploadRouteContainerAction extends CommHandlerAction {
 
     @Override
     public boolean isActionDone() {
-        return false;
+        return uploadProcedureDone;
     }
 
     @Override
