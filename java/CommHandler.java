@@ -82,12 +82,12 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
         };
     }
 
-    public void connectSocket(String ipAddress, int port) {
+    public void connectInterface() {
         System.out.println("CommHandler: connectSocket");
-        commInterface.connect(ipAddress, port);
+        commInterface.connect();
     }
 
-    void disconnectSocket() {
+    void disconnectInterface() {
         System.out.println("CommHandler: disconnectSocket");
         stopAllTasks();
         commInterface.disconnect();
