@@ -99,6 +99,7 @@ public class CalibrateAccelAction extends CommHandlerAction {
                         commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Accelerometer calibration successful"));
                         calibrationProcedureDone = true;
                         commHandler.notifyActionDone();
+                        commHandler.getUavManager().notifyUavEvent(new UavEvent((UavEvent.Type.ACCEL_CALIB_DONE)));
                     } else {
                         System.out.println("Calibration settings received but the data is invalid, responding with DATA_INVALID");
                         commHandler.send(new SignalData(SignalData.Command.CALIBRATION_SETTINGS, SignalData.Parameter.DATA_INVALID).getMessage());

@@ -20,6 +20,7 @@ public class UavEvent {
         FLIGHT_STARTED,
         FLIGHT_ENDED,
         MAGNETOMETER_CALIBRATION_STARTED,
+        ACCEL_CALIB_DONE
     }
 
     private Type type;
