@@ -14,7 +14,7 @@ public abstract class CommInterface {
         this.listener = listener;
     }
 
-    public abstract void connect(String ipAddress, int port);
+    public abstract void connect();
 
     public abstract void disconnect();
 

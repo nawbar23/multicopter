@@ -198,7 +198,7 @@ public class UavManager {
                 break;
 
             case DISCONNECTED:
-                commHandler.disconnectSocket();
+                commHandler.disconnectInterface();
                 break;
         }
     }
