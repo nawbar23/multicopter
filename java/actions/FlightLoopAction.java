@@ -184,20 +184,21 @@ public class FlightLoopAction extends CommHandlerAction {
     }
 
     private void handleSignalWhileFlying(final SignalData command) {
+        System.out.println("SignalData received in flight loop: " + command.toString());
         if (command.getCommand() == SignalData.Command.FLIGHT_LOOP) {
 
             commHandler.stopCommTask(commHandler.getControlTask());
             commHandler.stopCommTask(commHandler.getPingTask());
 
+            if (command.getParameter() == SignalData.Parameter.BREAK_ACK && state == FlightLoopState.BREAKING) {
+                commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_ENDED, "by user."));
+            } else {
+                commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_ENDED, "by board."));
+            }
+
             state = FlightLoopState.IDLE;
             flightLoopDone = true;
             commHandler.notifyActionDone();
-
-            if (command.getParameter() == SignalData.Parameter.BREAK || state == FlightLoopState.BREAKING) {
-                commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_ENDED, "By user"));
-            } else {
-                commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.FLIGHT_ENDED, "By board"));
-            }
         }
     }
 

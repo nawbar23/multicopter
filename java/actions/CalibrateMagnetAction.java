@@ -21,7 +21,8 @@ public class CalibrateMagnetAction extends CommHandlerAction {
         INITIAL_COMMAND,
         WAITING_FOR_USER_COMMAND,
         WAITING_FOR_CALIBRATION,
-        WAITING_FOR_CALIBRATION_DATA
+        WAITING_FOR_CALIBRATION_DATA,
+        WAITING_FOR_CANCEL_ACK
 
     }
 
@@ -113,9 +114,21 @@ public class CalibrateMagnetAction extends CommHandlerAction {
                         commHandler.notifyActionDone();
                     }
                 } else {
-                    System.out.println("Unexpected event received at state " + state.toString());
+                    throw new Exception("Unexpected message received at state " + state.toString());
                 }
                 break;
+
+            case WAITING_FOR_CANCEL_ACK:
+                if(event.matchSignalData(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.ACK))){
+                    commHandler.getUavManager().notifyUavEvent(
+                            new UavEvent(UavEvent.Type.MESSAGE, "Magnetometer calibration canceled."));
+                    calibrationProcedureDone = true;
+                    commHandler.notifyActionDone();
+                } else {
+                    throw new Exception("Unexpected message received at state " + state.toString());
+                }
+                break;
+
             default:
                 throw new Exception("Event: " + event.toString() + " received at unknown state");
         }
@@ -134,10 +147,8 @@ public class CalibrateMagnetAction extends CommHandlerAction {
                 state = CalibrationState.WAITING_FOR_CALIBRATION;
 
             } else if (userEvent.getType() == UserEvent.Type.CANCEL_MAGNETOMETER_CALIBRATION) {
-                commHandler.getUavManager().notifyUavEvent(new UavEvent(UavEvent.Type.MESSAGE, "Calibration cancelled!"));
                 commHandler.send(new SignalData(SignalData.Command.CALIBRATE_MAGNET, SignalData.Parameter.SKIP).getMessage());
-                calibrationProcedureDone = true;
-                commHandler.notifyActionDone();
+                state = CalibrationState.WAITING_FOR_CANCEL_ACK;
             }
         } else {
             System.out.println("Unexpected user event received at state " + state.toString());
