@@ -178,8 +178,6 @@ public class FlightLoopAction extends CommHandlerAction {
 
         if (actualState != state) {
             System.out.println("HandleEvent done, transition: " + actualState.toString() + " -> " + state.toString());
-        } else {
-            System.out.println("HandleEvent done, no state change");
         }
     }
 

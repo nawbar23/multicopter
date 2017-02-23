@@ -52,7 +52,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
                 if (((FlightLoopAction)commHandlerAction).isBreaking()) {
                     controlData.setStopCommand();
                 }
-                System.out.println("Controlling: " + controlData.toString());
+                //System.out.println("Controlling: " + controlData);
                 send(controlData.getMessage());
             }
         };
@@ -121,7 +121,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
 
     @Override
     public void handleCommEvent(CommEvent event) {
-        System.out.println("CommHandler: Event " + event.toString() + " received at action " + commHandlerAction.toString());
+        //System.out.println("CommHandler: Event " + event.toString() + " received at action " + commHandlerAction.toString());
         switch (event.getType()) {
             case MESSAGE_RECEIVED:
                 if (((MessageEvent) event).getMessageType() == CommMessage.MessageType.SIGNAL) {
@@ -150,7 +150,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
     }
 
     public void send(CommMessage message) {
-        System.out.println("CommHandler: Sending message: " + message.toString());
+        //System.out.println("CommHandler: Sending message: " + message.toString());
         commInterface.send(message.getByteArray());
     }
 
