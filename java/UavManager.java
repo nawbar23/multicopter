@@ -197,6 +197,7 @@ public class UavManager {
                 commHandler.preformAction(CommHandlerAction.ActionType.APPLICATION_LOOP);
                 break;
 
+            case ERROR:
             case DISCONNECTED:
                 commHandler.disconnectInterface();
                 break;
