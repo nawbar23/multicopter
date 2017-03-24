@@ -1,10 +1,7 @@
 package com.multicopter.java.actions;
 
 import com.multicopter.java.CommHandler;
-import com.multicopter.java.CommTask;
 import com.multicopter.java.UavEvent;
-import com.multicopter.java.data.CalibrationSettings;
-import com.multicopter.java.data.ControlData;
 import com.multicopter.java.data.ControlSettings;
 import com.multicopter.java.data.DebugData;
 import com.multicopter.java.data.RouteContainer;

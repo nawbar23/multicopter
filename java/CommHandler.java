@@ -2,7 +2,6 @@ package com.multicopter.java;
 
 import com.multicopter.java.actions.*;
 import com.multicopter.java.data.ControlData;
-import com.multicopter.java.data.ControlSettings;
 import com.multicopter.java.data.SignalData;
 import com.multicopter.java.data.SignalPayloadData;
 import com.multicopter.java.events.CommEvent;
