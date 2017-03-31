@@ -19,7 +19,8 @@ public class UavEvent {
         PING_UPDATED,
         FLIGHT_STARTED,
         FLIGHT_ENDED,
-        MAGNETOMETER_CALIBRATION_STARTED
+        MAGNETOMETER_CALIBRATION_STARTED,
+        ACCEL_CALIB_DONE
     }
 
     private Type type;

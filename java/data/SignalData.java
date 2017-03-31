@@ -152,6 +152,7 @@ public class SignalData {
             else if (value == SYSTEM_RESET.getValue()) return SYSTEM_RESET;
             else if (value == UPLOAD_ROUTE.getValue()) return UPLOAD_ROUTE;
             else if (value == DOWNLOAD_ROUTE.getValue()) return DOWNLOAD_ROUTE;
+            else if (value == CONFIGURE_WIFI.getValue()) return CONFIGURE_WIFI;
             else if (value == SENSORS_LOGGER.getValue()) return SENSORS_LOGGER;
             else if (value == CALIBRATION_SETTINGS.getValue()) return CALIBRATION_SETTINGS;
             else if (value == CONTROL_SETTINGS.getValue()) return CONTROL_SETTINGS;
@@ -160,6 +161,8 @@ public class SignalData {
             else if (value == CONTROL_SETTINGS_DATA.getValue()) return CONTROL_SETTINGS_DATA;
             else if (value == ROUTE_CONTAINER_DATA.getValue()) return ROUTE_CONTAINER_DATA;
             else if (value == PING_VALUE.getValue()) return PING_VALUE;
+            else if (value == WIFI_CONFIGURATION.getValue()) return WIFI_CONFIGURATION;
+            else if (value == WIFI_CONFIGURATION_DATA.getValue()) return WIFI_CONFIGURATION_DATA;
             else return DUMMY; // TODO throw some exception
         }
     }
@@ -186,7 +189,10 @@ public class SignalData {
         NOT_ALLOWED(1000023),
 
         DATA_INVALID(1000024),
-        TIMEOUT(1000025);
+        TIMEOUT(1000025),
+
+        VIA_ROUTE_ALLOWED(1000026),
+        VIA_ROUTE_NOT_ALLOWED(1000027);
 
         private final int value;
 
@@ -215,6 +221,8 @@ public class SignalData {
             else if (value == NOT_ALLOWED.getValue()) return NOT_ALLOWED;
             else if (value == DATA_INVALID.getValue()) return DATA_INVALID;
             else if (value == TIMEOUT.getValue()) return TIMEOUT;
+            else if (value == VIA_ROUTE_ALLOWED.getValue()) return VIA_ROUTE_ALLOWED;
+            else if (value == VIA_ROUTE_NOT_ALLOWED.getValue()) return VIA_ROUTE_NOT_ALLOWED;
             else return DUMMY_PARAMETER; // TODO throw some exception
         }
     }

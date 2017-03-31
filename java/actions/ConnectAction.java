@@ -7,12 +7,17 @@ import com.multicopter.java.data.SignalData;
 import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.SignalPayloadEvent;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import static com.multicopter.java.actions.CommHandlerAction.ActionType.CONNECT;
 
 /**
  * Created by ebarnaw on 2016-10-13.
  */
 public class ConnectAction extends CommHandlerAction {
+
+    private static final long CONNECTION_TIMEOUT = 3000;
 
     public enum ConnectState {
         IDLE,
@@ -25,6 +30,8 @@ public class ConnectAction extends CommHandlerAction {
     private ConnectState state;
 
     private boolean connectionProcedureDone;
+
+    private Timer timer;
 
     public ConnectAction(CommHandler commHandler){
         super(commHandler);
@@ -43,6 +50,7 @@ public class ConnectAction extends CommHandlerAction {
         connectionProcedureDone = false;
         state = ConnectState.INITIAL_COMMAND;
         commHandler.send(new SignalData(SignalData.Command.START_CMD, SignalData.Parameter.START).getMessage());
+        startConnectionTimer();
     }
 
     @Override
@@ -52,6 +60,7 @@ public class ConnectAction extends CommHandlerAction {
             case INITIAL_COMMAND:
                 if (event.matchSignalData(
                         new SignalData(SignalData.Command.START_CMD, SignalData.Parameter.ACK))){
+                    timer.cancel();
                     state = ConnectState.WAITING_FOR_CALIBRATION;
                     System.out.println("Initial command received successfully");
                 } else {
@@ -115,6 +124,20 @@ public class ConnectAction extends CommHandlerAction {
         } else {
             System.out.println("HandleEvent done, no state change");
         }
+    }
+
+    private void startConnectionTimer() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (state == ConnectState.INITIAL_COMMAND) {
+                    commHandler.getUavManager().notifyUavEvent(
+                            new UavEvent(UavEvent.Type.ERROR,
+                                    "Timeout waiting for initial command response."));
+                }
+            }
+        }, CONNECTION_TIMEOUT);
     }
 
     @Override

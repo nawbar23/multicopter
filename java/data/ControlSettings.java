@@ -7,6 +7,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static com.multicopter.java.data.ControlSettings.StickMovementMode.COPTER;
+
 /**
  * Created by ebarnaw on 2016-10-14.
  */
@@ -99,7 +101,7 @@ public class ControlSettings implements SignalPayloadData {
         maxAutoAngle = 0.0f;
         maxAutoVelocity = 0.0f;
         stickPositionRateProp = 0.0f;
-        stickMovementMode = StickMovementMode.COPTER.getValue();
+        stickMovementMode = COPTER.getValue();
 
         batteryType = BatteryType.UNDEFINED.getValue();
         errorHandlingAction = DebugData.ControllerState.AUTOLANDING.getValue();
@@ -165,6 +167,11 @@ public class ControlSettings implements SignalPayloadData {
     }
 
     @Override
+    public SignalData.Command getDataCommand() {
+        return SignalData.Command.CONTROL_SETTINGS;
+    }
+
+    @Override
     public SignalData.Command getDataType() {
         return SignalData.Command.CONTROL_SETTINGS_DATA;
     }
@@ -178,6 +185,7 @@ public class ControlSettings implements SignalPayloadData {
         return crcValue == computeCrc();
     }
 
+    @Override
     public ArrayList<CommMessage> getMessages() {
         return CommMessage.buildMessagesList(getDataType(), serialize());
     }
@@ -240,7 +248,8 @@ public class ControlSettings implements SignalPayloadData {
 
     public enum UavType
     {
-        TRICOPTER(1000),
+        TRICOPTER_REAR(1000),
+        TRICOPTER_FRONT(1500),
         QUADROCOPTER_X(2000),
         QUADROCOPTER_PLUS(2500),
         HEXACOPTER_X(3000),
@@ -254,7 +263,7 @@ public class ControlSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
         }
 
@@ -281,8 +290,17 @@ public class ControlSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
+        }
+
+        public static ThrottleMode getThrottleMode(final int value) {
+            for (ThrottleMode throttleMode : ThrottleMode.values()) {
+                if (throttleMode.getValue() == value) {
+                    return throttleMode;
+                }
+            }
+            return DYNAMIC; // TODO throw some exception
         }
     }
 
@@ -298,10 +316,21 @@ public class ControlSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
         }
+
+        public static StickMovementMode getStickMovementMode(final int value) {
+            for (StickMovementMode stickMovementMode : StickMovementMode.values()) {
+                if (stickMovementMode.getValue() == value) {
+                    return stickMovementMode;
+                }
+            }
+            return COPTER; // TODO throw some exception
+        }
     }
+
+
 
     public enum BatteryType
     {
@@ -318,8 +347,17 @@ public class ControlSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
+        }
+
+        public static BatteryType getBatteryType(final int value) {
+            for (BatteryType batteryType : BatteryType.values()) {
+                if (batteryType.getValue() == value) {
+                    return batteryType;
+                }
+            }
+            return UNDEFINED; // TODO throw some exception
         }
     }
 

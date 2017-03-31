@@ -90,6 +90,11 @@ public class CalibrationSettings implements SignalPayloadData {
     }
 
     @Override
+    public SignalData.Command getDataCommand() {
+        return SignalData.Command.CALIBRATION_SETTINGS;
+    }
+
+    @Override
     public SignalData.Command getDataType() {
         return SignalData.Command.CALIBRATION_SETTINGS_DATA;
     }
@@ -103,6 +108,7 @@ public class CalibrationSettings implements SignalPayloadData {
         return crcValue == computeCrc();
     }
 
+    @Override
     public ArrayList<CommMessage> getMessages() {
         return CommMessage.buildMessagesList(getDataType(), serialize());
     }
@@ -250,7 +256,7 @@ public class CalibrationSettings implements SignalPayloadData {
             this.value = value;
         }
 
-        int getValue(){
+        public int getValue(){
             return value;
         }
 
@@ -267,7 +273,8 @@ public class CalibrationSettings implements SignalPayloadData {
     public enum FlagId
     {
         IS_GPS_CONNECTED(0),
-        IS_EXTERNAL_MAGNETOMETER_USED(1);
+        IS_EXTERNAL_MAGNETOMETER_USED(1),
+        IS_BATTERY_MESURMENT_VALID(2);
 
         private final int value;
 

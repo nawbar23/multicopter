@@ -51,7 +51,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
                 if (((FlightLoopAction)commHandlerAction).isBreaking()) {
                     controlData.setStopCommand();
                 }
-                System.out.println("Controlling: " + controlData.toString());
+                //System.out.println("Controlling: " + controlData);
                 send(controlData.getMessage());
             }
         };
@@ -81,12 +81,12 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
         };
     }
 
-    public void connectSocket(String ipAddress, int port) {
+    public void connectInterface() {
         System.out.println("CommHandler: connectSocket");
-        commInterface.connect(ipAddress, port);
+        commInterface.connect();
     }
 
-    void disconnectSocket() {
+    void disconnectInterface() {
         System.out.println("CommHandler: disconnectSocket");
         stopAllTasks();
         commInterface.disconnect();
@@ -120,7 +120,7 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
 
     @Override
     public void handleCommEvent(CommEvent event) {
-        System.out.println("CommHandler: Event " + event.toString() + " received at action " + commHandlerAction.toString());
+        //System.out.println("CommHandler: Event " + event.toString() + " received at action " + commHandlerAction.toString());
         switch (event.getType()) {
             case MESSAGE_RECEIVED:
                 if (((MessageEvent) event).getMessageType() == CommMessage.MessageType.SIGNAL) {
@@ -149,8 +149,14 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
     }
 
     public void send(CommMessage message) {
-        System.out.println("CommHandler: Sending message: " + message.toString());
+        //System.out.println("CommHandler: Sending message: " + message.toString());
         commInterface.send(message.getByteArray());
+    }
+
+    public void send(final SignalPayloadData data) {
+        for (CommMessage message : data.getMessages()){
+            send(message);
+        }
     }
 
     public void notifyActionDone() {
@@ -178,6 +184,14 @@ public class CommHandler implements CommInterface.CommInterfaceListener,
                 return new CalibrateAccelAction(this);
             case CALIBRATE_MAGNETOMETER:
                 return new CalibrateMagnetAction(this);
+            case DOWNLOAD_CONTROL_SETTINGS:
+                return new DownloadControlSettingsAction(this);
+            case UPLOAD_CONTROL_SETTINGS:
+                return new UploadControlSettingsAction(this,data);
+            case DOWNLOAD_ROUTE_CONTAINER:
+                return new DownloadRouteContainerAction(this);
+            case UPLOAD_ROUTE_CONTAINER:
+                return new UploadRouteContainerAction(this, data);
 
             default:
                 throw new Exception("CommHandler: Unsupported action type");
