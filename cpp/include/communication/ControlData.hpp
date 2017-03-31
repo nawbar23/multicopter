@@ -4,10 +4,22 @@
 #ifndef __CONTROL_DATA__
 #define __CONTROL_DATA__
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <iostream>
+#include <sstream>
+
+#endif //__MULTICOPTER_USE_STL__
+
 #include "MathCore.hpp"
 
 #include "IMessage.hpp"
 
+/**
+ * =============================================================================================
+ * ControlData
+ * =============================================================================================
+ */
 class ControlData : public IMessage
 {
 public:
@@ -59,6 +71,15 @@ public:
 	void setRoll(const float roll);
 	void setPitch(const float pitch);
 	void setYaw(const float yaw);
+
+#ifdef __MULTICOPTER_USE_STL__
+
+	static std::string getControllerCommandString(const ControllerCommand& controllerCommand);
+	static std::string getSolverModeString(const SolverMode& solverMode);
+    static ControlData parseFromString(const std::string& line);
+	friend std::ostream& operator << (std::ostream& stream, const ControlData& controlData);
+
+#endif //__MULTICOPTER_USE_STL__
 
 private:
 	Vect3Df euler; // rotation control

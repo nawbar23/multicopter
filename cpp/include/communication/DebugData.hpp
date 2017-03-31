@@ -4,6 +4,13 @@
 #ifndef __DEBUG_DATA__
 #define __DEBUG_DATA__
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <iostream>
+#include <sstream>
+
+#endif //__MULTICOPTER_USE_STL__
+
 #include "MathCore.hpp"
 
 #include "IMessage.hpp"
@@ -11,6 +18,11 @@
 #include "ControlData.hpp"
 #include "Flags.hpp"
 
+/**
+ * =============================================================================================
+ * DebugData
+ * =============================================================================================
+ */
 class DebugData : public IMessage
 {
 public:
@@ -90,6 +102,14 @@ public:
 	bool isConnection(void) const;
 
 	float getNormalYaw(void) const;
+
+#ifdef __MULTICOPTER_USE_STL__
+
+	static std::string getControllerStateString(const ControllerState& state);
+	static DebugData parseFromString(const std::string& line);
+	friend std::ostream& operator << (std::ostream& stream, const DebugData& debugData);
+
+#endif //__MULTICOPTER_USE_STL__
 
 private:
 	Vect3Df euler; // rotation [roll; pitch; yaw] [rad]

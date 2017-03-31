@@ -4,10 +4,21 @@
 #ifndef __I_MESSAGE__
 #define __I_MESSAGE__
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <string>
+
+#endif // __MULTICOPTER_USE_STL__
+
+/**
+ * =============================================================================================
+ * IMessage
+ * =============================================================================================
+ */
 class IMessage
 {
 public:
-	enum PreambleType
+    enum PreambleType
 	{
 		EMPTY,
 		CONTROL,
@@ -20,10 +31,12 @@ public:
         DEBUG_DATA,
         CONTROL_DATA,
         SENSORS_DATA,
+        AUTOPILOT_DATA,
+        SIGNAL_DATA,
         CALIBRATION_SETTINGS,
         CONTROL_SETTINGS,
         ROUTE_CONTAINER,
-        AUTOPILOT_DATA
+        WIFI_CONFIGURATION
     };
 
 	virtual unsigned getPayloadSize(void) const;
@@ -38,6 +51,8 @@ public:
 
 	// creates dynamically allocated message array with binary communication data
 	unsigned char* createMessage(void) const;
+
+    virtual bool isSignalPayloadMessage(void) const;
 
 	// virtual destructor for memory safeness
 	virtual ~IMessage(void);
@@ -61,6 +76,16 @@ public:
 	static const unsigned SIGNAL_DATA_MESSAGE_SIZE =
 			PREAMBLE_SIZE + SIGNAL_CONSTRAINT_SIZE + SIGNAL_DATA_PAYLOAD_SIZE + CRC_SIZE;
 	static const unsigned MAX_DATA_SIZE = SIGNAL_DATA_MESSAGE_SIZE;
+
+#ifdef __MULTICOPTER_USE_STL__
+
+    virtual std::string toString(void) const;
+
+    std::string getMessageName(void) const;
+
+    static std::string toString(const MessageType type);
+
+#endif // __MULTICOPTER_USE_STL__
 };
 
 #endif // __I_MESSAGE__

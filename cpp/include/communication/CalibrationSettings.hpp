@@ -4,6 +4,12 @@
 #ifndef __CALIBRATION_SETTINGS__
 #define __CALIBRATION_SETTINGS__
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <string>
+
+#endif // __MULTICOPTER_USE_STL__
+
 #include "MathCore.hpp"
 
 #include "ISignalPayloadMessage.hpp"
@@ -11,6 +17,11 @@
 #include "SignalData.hpp"
 #include "Flags.hpp"
 
+/**
+ * =============================================================================================
+ * CalibrationSettings
+ * =============================================================================================
+ */
 class CalibrationSettings : public ISignalPayloadMessage
 {
 public:
@@ -27,7 +38,8 @@ public:
 	enum FlagId
 	{
 		IS_GPS_CONNECTED,
-		IS_EXTERNAL_MAGNETOMETER_USED
+        IS_EXTERNAL_MAGNETOMETER_USED,
+        IS_BATTERY_MEASURMENT_VALID
 	};
 
 	Vect3Df gyroOffset;
@@ -54,12 +66,17 @@ public:
 
 	SignalData::Command getSignalDataType(void) const;
 	SignalData::Command getSignalDataCommand(void) const;
+    SignalData::Command getUploadAction(void) const;
 
     MessageType getMessageType(void) const;
 
 	bool isValid(void) const;
 
+    unsigned getCrc(void) const;
+
 	void setCrc(void);
+
+    ISignalPayloadMessage* clone(void) const;
 
 	static CalibrationSettings createDefault(void);
 
@@ -67,6 +84,15 @@ public:
 
 	void setDefaultPwmInputMap(void);
 	void setPwmInputMap(char* map);
+
+#ifdef __MULTICOPTER_USE_STL__
+
+    std::string getBoardTypeString(void) const;
+    static CalibrationSettings::BoardType getBoardType(const std::string& boardTypeString);
+
+    friend std::ostream& operator << (std::ostream& stream, const CalibrationSettings& cD);
+
+#endif //__MULTICOPTER_USE_STL__
 
 private:
 	unsigned crcValue;

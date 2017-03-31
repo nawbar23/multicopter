@@ -7,7 +7,18 @@
 #include "IMessage.hpp"
 
 #include "SignalData.hpp"
+#include "DebugData.hpp"
+#include "SensorsData.hpp"
+#include "SignalData.hpp"
+#include "AutopilotData.hpp"
 
+#include "ISignalPayloadMessage.hpp"
+
+/**
+ * =============================================================================================
+ * CommDispatcher
+ * =============================================================================================
+ */
 class CommDispatcher
 {
 public:
@@ -18,13 +29,24 @@ public:
 	void reset(void);
 
 	const IMessage::PreambleType& getPreambleType(void) const;
-	const unsigned char* getDataBuffer(void) const;
-	const unsigned char* getSignalDataBuffer(void) const;
 
-	void cleanSignalDataBuffer(void);
+    SignalData::Command getCommand(void) const;
+    SignalData::Parameter getParameter(void) const;
 
-	unsigned getSucessfullReceptionCounter(void) const;
-	unsigned getFailedReceptionCounter(void) const;
+    SignalData getSignalData(void) const;
+    DebugData getDebugData(void) const;
+    ControlData getControlData(void) const;
+    SensorsData getSensorsData(void) const;
+    AutopilotData getAutopilotData(void) const;
+
+    void getSignalDataObject(ISignalPayloadMessage& data);
+
+    IMessage* retriveMessage(const IMessage::PreambleType preamble,
+                             const IMessage::MessageType expectedControlMessageType);
+    IMessage* retriveSignalMessage(void);
+
+    unsigned getSucessfullReceptions(void) const;
+    unsigned getFailedReceptions(void) const;
 
 	void clearCounters(void);
 
@@ -59,6 +81,8 @@ private:
 	void initSignalDataPayloadReception(const SignalData::Command& command, const unsigned short allPackets);
 	void handleSignalDataPayloadReception(void);
 	bool isSignalDataComplete(void);
+
+    void cleanSignalDataBuffer(void);
 
 	bool isValidMessageCrc(void) const;
 

@@ -1,35 +1,94 @@
 #ifndef __USER_UAV_EVENT__
 #define __USER_UAV_EVENT__
 
+#include "ISignalPayloadMessage.hpp"
+
+#include "IAppCommInterface.hpp"
+#include "ICommAction.hpp"
+
+#include "Exception.hpp"
+
+#include <string>
+
+class ICommAction;
+
+/**
+ * =============================================================================================
+ * UserUavEvent
+ * =============================================================================================
+ */
 class UserUavEvent
 {
 public:
     enum Type
     {
-        ALLOW,
-        DONE,
-        SKIP,
-        BREAK,
-        CHECK,
-        STOP_APPLICATION_LOOP,
-        STOP_FLIGHT_LOOP,
-        STOP_MAGNET_CALIB_OK,
-        STOP_MAGNET_CALIB_FAIL,
-        STOP_RADIO_CHECK,
-        STOP_SENSORS_LOGGER,
+        CONNECT,
+        ACTION,
+        UPLOAD,
+        DOWNLOAD,
+        MAGNET_CALIB_DONE,
+        MAGNET_CALIB_ABORT,
+        BREAK_APPLICATION_LOOP,
+        BREAK_FLIGHT_LOOP,
+        BREAK_RADIO_CHECK,
+        BREAK_SENSORS_LOGGER,
+        ESC_CALIB_DONE,
+        ESC_CALIB_ABORT,
     };
 
     const Type type;
 
-    UserUavEvent(const Type& _type) :
-        type(_type)
-    {
-    }
+    UserUavEvent(const Type& _type);
 
-    Type getType(void) const
-    {
-        return type;
-    }
+    virtual ~UserUavEvent(void);
+    Type getType(void) const;
+
+    virtual std::string toString(void) const;
+};
+
+class UserUavEventConnect : public UserUavEvent
+{
+    ICommAction::Type connetionType;
+    IAppCommInterface* interface;
+
+public:
+    UserUavEventConnect(ICommAction::Type _connectionType, IAppCommInterface* _interface);
+
+    ICommAction::Type getConnectionType(void) const;
+
+    IAppCommInterface* getCommInnterface(void) const;
+};
+
+class UserUavEventAction : public UserUavEvent
+{
+    ICommAction::Type action;
+
+public:
+    UserUavEventAction(ICommAction::Type _action);
+
+    ICommAction::Type getAction(void) const;
+};
+
+class UserUavEventUpload : public UserUavEvent
+{
+    const ISignalPayloadMessage& data;
+
+public:
+    UserUavEventUpload(const ISignalPayloadMessage& _data);
+
+    ~UserUavEventUpload(void);
+
+    const ISignalPayloadMessage& getData(void) const;
+};
+
+class UserUavEventDownload : public UserUavEvent
+{
+    SignalData::Command dataType;
+
+public:
+    UserUavEventDownload(SignalData::Command _dataType);
+
+    SignalData::Command getDataType(void) const;
 };
 
 #endif // __USER_UAV_EVENT__

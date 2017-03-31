@@ -6,6 +6,17 @@
 
 #include "IMessage.hpp"
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <string>
+
+#endif //__MULTICOPTER_USE_STL__
+
+/**
+ * =============================================================================================
+ * SignalData
+ * =============================================================================================
+ */
 class SignalData : public IMessage
 {
 public:
@@ -28,20 +39,22 @@ public:
 		SYSTEM_RESET,
 		UPLOAD_ROUTE,
 		DOWNLOAD_ROUTE,
+		CONFIGURE_WIFI,
 		SENSORS_LOGGER,
 
+		PING_VALUE,
+
 		CALIBRATION_SETTINGS,
+        CALIBRATION_SETTINGS_DATA,
 		CONTROL_SETTINGS,
+        CONTROL_SETTINGS_DATA,
 		ROUTE_CONTAINER,
-
-		CALIBRATION_SETTINGS_DATA,
-		CONTROL_SETTINGS_DATA,
-		ROUTE_CONTAINER_DATA,
-
-		PING_VALUE
+        ROUTE_CONTAINER_DATA,
+        WIFI_CONFIGURATION,
+        WIFI_CONFIGURATION_DATA
 	};
 
-	enum CommandParameter
+    enum Parameter
 	{
 		DUMMY_PARAMETER,
 
@@ -62,17 +75,20 @@ public:
 		NON_STATIC,
 		NOT_ALLOWED,
 
-		BAD_CRC,
-		TIMEOUT
+		DATA_INVALID,
+		TIMEOUT,
+
+		VIA_ROUTE_ALLOWED,
+		VIA_ROUTE_NOT_ALLOWED
 	};
 
 	SignalData(void);
 	SignalData(const unsigned char* src);
-	SignalData(const Command& command, const CommandParameter& parameter);
+    SignalData(const Command& command, const Parameter& parameter);
 	SignalData(const Command& command, const int parameterValue);
 
 	Command getCommand(void) const;
-	CommandParameter getParameter(void) const;
+    Parameter getParameter(void) const;
 
 	int getParameterValue() const;
 
@@ -87,12 +103,22 @@ public:
     MessageType getMessageType(void) const;
 
 	static Command parseCommand(const unsigned char* src);
-	static CommandParameter parseCommandParameter(const unsigned char* src);
+    static Parameter parseParameter(const unsigned char* src);
 
 	static unsigned short parseAllPacketsNumber(const unsigned char* src);
 	static unsigned short parseActualPacketNumber(const unsigned char* src);
 
 	static bool hasPayload(const Command command);
+
+#ifdef __MULTICOPTER_USE_STL__
+
+    std::string toString(void) const;
+
+    static std::string toString(const SignalData& command);
+    static std::string toString(const SignalData::Command& command);
+    static std::string toString(const SignalData::Parameter& parameter);
+
+#endif //__MULTICOPTER_USE_STL__
 
 private:
 	int command;

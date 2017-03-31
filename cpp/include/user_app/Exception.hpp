@@ -11,6 +11,11 @@
 
 #define __RL_EXCEPTION__( _WHAT ) (throw Exception( _WHAT, __TIME__, __FILE__, __LINE__))
 
+/**
+ * =============================================================================================
+ * Exception
+ * =============================================================================================
+ */
 class Exception : public std::exception
 {
 protected:
@@ -23,7 +28,6 @@ protected:
 
 public:
     Exception(const char* what, const char* time, const char* file, const int line);
-
     virtual ~Exception();
 
 #ifdef __GNUC__
@@ -31,6 +35,8 @@ public:
 #elif _MSC_VER
     virtual const char* what() const;
 #endif
+
+    virtual const std::string& message(void) const;
 
     static const std::vector<std::string>& getTrace(void);
     static void printTrace(void);

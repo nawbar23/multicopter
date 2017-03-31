@@ -2,6 +2,14 @@
 
 #include <string.h>
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <iomanip>
+
+#include "Exception.hpp"
+
+#endif //__MULTICOPTER_USE_STL__
+
 DebugData::DebugData(void)
 {
 }
@@ -53,7 +61,7 @@ void DebugData::setVelocity(const float _velocity)
 
 void DebugData::setControllerState(const ControllerState& _controllerState)
 {
-	controllerState = (unsigned short)_controllerState;
+    controllerState = static_cast<unsigned short>(_controllerState);
 }
 
 void DebugData::setSolverMode(const ControlData::SolverMode& solverMode)
@@ -67,7 +75,7 @@ void DebugData::setSolverMode(const ControlData::SolverMode& solverMode)
 void DebugData::setBatteryVoltage(const float voltage)
 {
 	const float maxVoltage = 3.3f * 11.0f;
-	battery = (unsigned char)(((255 * voltage) / maxVoltage) + 0.5f);
+    battery = static_cast<unsigned char>(((255 * voltage) / maxVoltage) + 0.5f);
 }
 
 const Vect3Df& DebugData::getEuler(void) const
@@ -92,12 +100,12 @@ float DebugData::getVelocity(void) const
 
 DebugData::ControllerState DebugData::getControllerState(void) const
 {
-	return (DebugData::ControllerState)controllerState;
+    return static_cast<ControllerState>(controllerState);
 }
 
 ControlData::SolverMode DebugData::getSolverMode(void) const
 {
-	return (ControlData::SolverMode)(flagsObj.getFlagsVector() & 0x03);
+    return static_cast<ControlData::SolverMode>(flagsObj.getFlagsVector() & 0x03);
 }
 
 float DebugData::getBatteryVoltage(void) const
@@ -181,10 +189,6 @@ bool DebugData::isDrawable(void) const
 	{
 		return false;
 	}
-	if (euler.z < -roboLib::pi || euler.z > roboLib::pi)
-	{
-		return false;
-	}
 	// position
 	if (position.x < -90.0f || position.x > 90.0f)
 	{
@@ -209,3 +213,65 @@ float DebugData::getNormalYaw(void) const
 	else if (yaw < 0.0f) yaw += float(2 * roboLib::pi);
 	return yaw;
 }
+
+#ifdef __MULTICOPTER_USE_STL__
+
+std::string DebugData::getControllerStateString(const ControllerState& state)
+{
+	switch (state)
+	{
+	case IDLE:
+		return std::string("Idle");
+	case MANUAL:
+		return std::string("Manual");
+	case AUTOLANDING:
+		return std::string("Autolanding");
+	case AUTOLANDING_AP:
+		return std::string("Autolanding AP");
+	case HOLD_ALTITUDE:
+		return std::string("Hold: altitude");
+	case HOLD_POSITION:
+		return std::string("Hold: position");
+	case BACK_TO_BASE:
+		return std::string("Back to base");
+	case VIA_ROUTE:
+		return std::string("Via route");
+	case STOP:
+		return std::string("STOP");
+	case APPLICATION_LOOP:
+		return std::string("App. loop");
+	default:
+		return std::string("ERROR");
+	}
+}
+DebugData DebugData::parseFromString(const std::string& line)
+{
+	DebugData debugData;
+	std::istringstream iss(line);
+	float time;
+	int battery;
+	if (!(iss
+		>> time
+		>> debugData.euler.x >> debugData.euler.y >> debugData.euler.z
+		>> debugData.position.x >> debugData.position.y >> debugData.altitude
+		>> debugData.velocity
+		>> debugData.controllerState >> debugData.flagsObj.getFlagsVector()
+		>> battery
+		))
+	{
+		__RL_EXCEPTION__("Error while parsing data.");
+	}
+	debugData.battery = (unsigned char)battery;
+	return debugData;
+}
+std::ostream& operator << (std::ostream& stream, const DebugData& debugData)
+{
+	stream << std::setprecision(10);
+	stream << debugData.getEuler().x << " " << debugData.getEuler().y << " " << debugData.getEuler().z << " ";
+	stream << debugData.getPosition().x << " " << debugData.getPosition().y << " " << debugData.getAltitude() << " ";
+	stream << debugData.getVelocity() << " " << debugData.getControllerState() << " ";
+	stream << (int)debugData.flagsObj.getFlagsVector() << " " << debugData.getBatteryVoltage();
+	return stream;
+}
+
+#endif //__MULTICOPTER_USE_STL__

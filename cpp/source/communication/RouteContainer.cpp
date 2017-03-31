@@ -56,6 +56,16 @@ RouteContainer::RouteContainer(const Waypoint* const _route, const unsigned _rou
 	setCrc();
 }
 
+#ifdef __MULTICOPTER_USE_STL__
+
+RouteContainer::RouteContainer(const std::vector<Waypoint>& routeVector,
+        const float _waypointTime, const float _baseTime) :
+RouteContainer(routeVector.data(), routeVector.size(), _waypointTime, _baseTime)
+{
+}
+
+#endif // __MULTICOPTER_USE_STL__
+
 void RouteContainer::serialize(unsigned char* dst) const
 {
 	// cast constraint of container
@@ -83,6 +93,11 @@ SignalData::Command RouteContainer::getSignalDataCommand(void) const
 	return SignalData::ROUTE_CONTAINER;
 }
 
+SignalData::Command RouteContainer::getUploadAction(void) const
+{
+    return SignalData::UPLOAD_ROUTE;
+}
+
 IMessage::MessageType RouteContainer::getMessageType(void) const
 {
     return ROUTE_CONTAINER;
@@ -97,12 +112,22 @@ bool RouteContainer::isValid(void) const
 	return result;
 }
 
+unsigned RouteContainer::getCrc(void) const
+{
+    return constraint.crcValue;
+}
+
 void RouteContainer::setCrc(void)
 {
 	unsigned char *dataTab = new unsigned char[getBinarySize()];
 	serialize(dataTab);
 	constraint.crcValue = IMessage::computeCrc32(dataTab + 4, getBinarySize() - 4);
 	delete[] dataTab;
+}
+
+ISignalPayloadMessage* RouteContainer::clone(void) const
+{
+    return new RouteContainer(*this);
 }
 
 unsigned RouteContainer::getRouteBinarySize(void) const
@@ -180,8 +205,7 @@ RouteContainer& RouteContainer::operator=(const RouteContainer& right)
 
 	constraint.waypointTime = right.constraint.waypointTime;
 	constraint.baseTime = right.constraint.baseTime;
-
-	setCrc();
+	constraint.crcValue = right.constraint.crcValue;
 
 	return *this;
 }

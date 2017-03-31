@@ -4,6 +4,13 @@
 #ifndef __CONTROL_SETTINGS__
 #define __CONTROL_SETTINGS__
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <string>
+#include <vector>
+
+#endif // __MULTICOPTER_USE_STL__
+
 #include "MathCore.hpp"
 
 #include "ISignalPayloadMessage.hpp"
@@ -12,12 +19,18 @@
 #include "ControlData.hpp"
 #include "Flags.hpp"
 
+/**
+ * =============================================================================================
+ * ControlSettings
+ * =============================================================================================
+ */
 class ControlSettings : public ISignalPayloadMessage
 {
 public:
 	enum UavType
 	{
-		TRICOPTER = 1000,
+        TRICOPTER_REAR = 1000,
+        TRICOPTER_FRONT = 1500,
 		QUADROCOPTER_X = 2000,
 		QUADROCOPTER_PLUS = 2500,
 		HEXACOPTER_X = 3000,
@@ -53,18 +66,20 @@ public:
 
 	enum EscPwmFreq
 	{
-		SLOW,
-		MEDIUM,
-		FAST,
-		VERY_FAST,
-		ONESHOT_125
+		SLOW = 100,
+		MEDIUM = 200,
+		FAST = 300,
+		VERY_FAST = 400,
+		ONESHOT_125 = 3200
 	};
 
 	enum FlagId
 	{
 		ENABLE_FLIGHT_LOGGER,
 		ALLOW_DYNAMIC_AUTOPILOT,
-		GPS_SENSORS_POSITION_DEFINED
+        EMPTY, // to be used by new flag
+        ANGLES_TUNED,
+        AUTOPILOT_TUNED
 	};
 
 	// base control settings
@@ -118,7 +133,7 @@ public:
 	Vect3Df gpsSensorPosition;
 
 	// flags for any boolean settings
-	Flags<unsigned> flags;
+    Flags<unsigned> flags;
 
 	ControlSettings(void);
 	ControlSettings(const unsigned char* src);
@@ -129,12 +144,17 @@ public:
 
 	SignalData::Command getSignalDataType(void) const;
 	SignalData::Command getSignalDataCommand(void) const;
+    SignalData::Command getUploadAction(void) const;
 
     MessageType getMessageType(void) const;
 
 	bool isValid(void) const;
 
+    unsigned getCrc(void) const;
+
 	void setCrc(void);
+
+    ISignalPayloadMessage* clone(void) const;
 
 	float getBatteryErrorLevel(void) const;
 	float getBatteryWarningLevel(void) const;
@@ -154,6 +174,51 @@ public:
 	bool isUavBisymetricalFromData(void) const;
 
 	ControlData getControlDataForLogs(const ControlData& controlData) const;
+
+    float retriveAngleTuner(void);
+    float retriveRateTuner(void);
+
+    static float getTunerRpProp(const float tuner);
+    static Vect3Df getTunerRpRate(const float tuner);
+    static float getTunerYawProp(const float tuner);
+    static Vect3Df getTunerYawRate(const float tuner);
+
+    Vect2Df retriveAutopilotTuners(void);
+
+    static Vect2Df getTunerVerticalPropSpeed(const float speed, const float force);
+    static Vect3Df getTunerVerticalAccel(const float speed, const float force);
+    static Vect2Df getTunerHorizontalPropSpeed(const float speed, const float force);
+    static Vect3Df getTunerHorizontalAccel(const float speed, const float force);
+
+#ifdef __MULTICOPTER_USE_STL__
+
+    std::string getUavTypeString(void) const;
+    std::string getInitialSolverString(void) const;
+    std::string getManualThrottleString(void) const;
+    std::string getStickModeString(void) const;
+    std::string getBatteryTypeString(void) const;
+    std::string getErrorHandlingActionString(void) const;
+    std::string getEscPwmFreqString(void) const;
+
+    static std::vector<std::string> getUavTypes(void);
+    static std::vector<std::string> getSolvers(void);
+    static std::vector<std::string> getThrottleModes(void);
+    static std::vector<std::string> getStickModes(void);
+    static std::vector<std::string> getBatteryTypes(void);
+    static std::vector<std::string> getErrorHandlingActions(void);
+    static std::vector<std::string> getEscPwmFreqs(void);
+
+    static ControlSettings::UavType getUavType(const std::string& uavTypeString);
+    static ControlData::SolverMode getSolverMode(const std::string& solverMode);
+    static ControlSettings::ThrottleMode getManualThrottleMode(const std::string& throttleMode);
+    static ControlSettings::StickMovementMode getStickMode(const std::string& stickMode);
+    static ControlSettings::BatteryType getBatteryType(const std::string& batteryType);
+    static ControlData::ControllerCommand getErrorHandlingAction(const std::string& errorHandlingAction);
+    static ControlSettings::EscPwmFreq getEscPwmFreq(const std::string& escPwmFreq);
+
+    friend std::ostream& operator << (std::ostream& stream, const ControlSettings& cS);
+
+#endif // __MULTICOPTER_USE_STL__
 
 private:
 	unsigned crcValue;

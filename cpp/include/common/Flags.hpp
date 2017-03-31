@@ -4,7 +4,13 @@
 #ifndef __FLAGS__
 #define __FLAGS__
 
-template <class _Tp> class Flags
+/**
+ * =============================================================================================
+ * Flags
+ * =============================================================================================
+ */
+template <class _Tp>
+class Flags
 {
 	_Tp value;
 
@@ -54,11 +60,11 @@ void Flags<_Tp>::setFlagState(const unsigned id, const bool state)
 {
 	if (state)
 	{
-		value |= 1 << id;
+		value = (_Tp)((int)value | 1 << id);
 	}
 	else
 	{
-		value &= ~(1 << id);
+		value = (_Tp)((int)value & ~(1 << id));
 	}
 }
 

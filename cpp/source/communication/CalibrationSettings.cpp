@@ -1,5 +1,11 @@
 #include "CalibrationSettings.hpp"
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <ostream>
+
+#endif // __MULTICOPTER_USE_STL__
+
 #include <string.h>
 
 #include "IMessage.hpp"
@@ -32,6 +38,12 @@ SignalData::Command CalibrationSettings::getSignalDataType(void) const
 SignalData::Command CalibrationSettings::getSignalDataCommand(void) const
 {
 	return SignalData::CALIBRATION_SETTINGS;
+}
+
+SignalData::Command CalibrationSettings::getUploadAction(void) const
+{
+    // calibration settings are never uploaded to board!
+    return SignalData::DUMMY;
 }
 
 IMessage::MessageType CalibrationSettings::getMessageType(void) const
@@ -78,11 +90,21 @@ bool CalibrationSettings::isValid(void) const
 		&& accelCalib.getDet() != 0.0f;
 }
 
+unsigned CalibrationSettings::getCrc(void) const
+{
+    return crcValue;
+}
+
 void CalibrationSettings::setCrc(void)
 {
 	unsigned char dataTab[sizeof(CalibrationSettings)];
 	serialize(dataTab);
 	crcValue = IMessage::computeCrc32(dataTab, getDataSize() - 4);
+}
+
+ISignalPayloadMessage* CalibrationSettings::clone(void) const
+{
+    return new CalibrationSettings(*this);
 }
 
 Mat4Df CalibrationSettings::getDefaultRadioLevels(void)
@@ -131,3 +153,62 @@ void CalibrationSettings::setPwmInputMap(char* map)
 		this->pwmInputMapData[i] = map[i];
 	}
 }
+
+#ifdef __MULTICOPTER_USE_STL__
+
+std::string CalibrationSettings::getBoardTypeString(void) const
+{
+    switch (boardType)
+    {
+    case CalibrationSettings::TYPE_ULTIMATE_V4:
+        return "ULTIMATE v4";
+    case CalibrationSettings::TYPE_ULTIMATE_V5:
+        return "ULTIMATE v5";
+    case CalibrationSettings::TYPE_BASIC_V1:
+        return "BASIC v1";
+    case CalibrationSettings::TYPE_BASIC_V2:
+        return "BASIC v2";
+    case CalibrationSettings::TYPE_BASIC_V3:
+        return "BASIC v3";
+    default:
+        return "Unknown board type";
+    }
+}
+
+std::ostream& operator << (std::ostream& stream, const CalibrationSettings& cD)
+{
+    stream << "gyro offset:	" << cD.gyroOffset.x << ", " << cD.gyroOffset.y << ", " << cD.gyroOffset.z << std::endl << std::endl;
+
+    stream << "preasure:	" << cD.altimeterSetting << " hPa" << std::endl;
+    stream << "temperature:	" << cD.temperatureSetting << " K" << std::endl << std::endl;
+
+    stream << " Accel: " << std::endl;
+    for (unsigned i = 1; i <= cD.accelCalib.size(); i++)
+    {
+        for (unsigned j = 1; j <= cD.accelCalib.size(); j++)
+        {
+            stream << cD.accelCalib(i, j) << "	";
+        }
+        stream << std::endl;
+    }
+
+    stream << std::endl << " Magnet S: " << std::endl;
+    for (unsigned i = 1; i <= cD.magnetSoft.size(); i++)
+    {
+        for (unsigned j = 1; j <= cD.magnetSoft.size(); j++)
+        {
+            stream << cD.magnetSoft(i, j) << "	";
+        }
+        stream << std::endl;
+    }
+
+    stream << std::endl << " Maget H: " << std::endl;
+    for (unsigned i = 1; i <= cD.magnetHard.size(); i++)
+    {
+        stream << cD.magnetHard(i) << std::endl;
+    }
+    stream << std::endl;
+    return stream;
+}
+
+#endif //__MULTICOPTER_USE_STL__

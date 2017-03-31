@@ -6,17 +6,39 @@
 #include "Tracer.h"
 #endif
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include "Exception.hpp"
+#include "SignalData.hpp"
+
+#include <string>
+
+#endif //__MULTICOPTER_USE_STL__
+
+ICommHandler::ICommHandler(void) :
+    buildingTempBuffer(new unsigned char[IMessage::MAX_DATA_SIZE])
+{
+}
+
 ICommHandler::~ICommHandler(void)
 {
-	// nothing to do here
+    delete[] buildingTempBuffer;
 }
 
 void ICommHandler::initialize(ICommInterface* _commInterface)
 {
 	commInterface = _commInterface;
+    commDispatcher.reset();
     clearCounters();
-	commDispatcher.reset();
 	sentMessages = 0;
+}
+
+void ICommHandler::reset(void)
+{
+    commInterface->flush();
+    commDispatcher.reset();
+    clearCounters();
+    sentMessages = 0;
 }
 
 const ICommInterface* ICommHandler::getCommHandle(void) const
@@ -32,7 +54,7 @@ IMessage::PreambleType ICommHandler::proceedReceiving(void)
 		IMessage::PreambleType received = commDispatcher.putChar(data);
 		if (received != IMessage::EMPTY)
 		{
-			// if stream processor reports data received return immadetely
+			// if stream processor reports data received return immediately
 			return received;
 		}
 	}
@@ -47,141 +69,53 @@ bool ICommHandler::send(const unsigned char* data, const unsigned dataSize)
 
 bool ICommHandler::send(const IMessage& message)
 {
-	unsigned char* data = message.createMessage();
-	const bool result = send(data, message.getMessageSize());
-	// always do cleanup when called createMessage 
-	delete[] data;
-	return result;
+    message.serializeMessage(buildingTempBuffer);
+    return send(buildingTempBuffer, message.getMessageSize());
 }
 
 bool ICommHandler::send(const ISignalPayloadMessage& message)
 {
-	unsigned char* data = new unsigned char[message.getDataSize()];
-	message.serialize(data);
-	const bool result = sendSignalData(data, message.getDataSize(), message.getSignalDataType());
-	// cleanup
-	delete[] data;
-	return result;
-}
-
-bool ICommHandler::send(const SignalData& message)
-{
-	unsigned char data[14];
-	data[0] = '%';
-	data[1] = '%';
-	data[2] = '%';
-	data[3] = 0;
-
-	message.serialize(data + 4);
-
-	const unsigned short crcValue = IMessage::computeCrc16(data + 4, 8);
-	data[12] = (unsigned char)(crcValue & 0xff);
-	data[13] = (unsigned char)((crcValue >> 8) & 0xff);
-
-	return send(data, 14);
-}
-
-bool ICommHandler::send(const CalibrationSettings& calibrationSettings)
-{
-	const unsigned dataSize = sizeof(CalibrationSettings);
-	unsigned char data[dataSize];
-	calibrationSettings.serialize(data);
-	return sendSignalData(data, dataSize, SignalData::CALIBRATION_SETTINGS_DATA);
-}
-
-bool ICommHandler::send(const ControlSettings& controlSettings)
-{
-	const unsigned dataSize = sizeof(ControlSettings);
-	unsigned char data[dataSize];
-	controlSettings.serialize(data);
-	return sendSignalData(data, dataSize, SignalData::CONTROL_SETTINGS_DATA);
-}
-
-bool ICommHandler::send(const RouteContainer& routeContainer)
-{
-	const unsigned dataSize = routeContainer.getBinarySize();
-	unsigned char *data = new unsigned char[dataSize];
-	routeContainer.serialize(data);
-	const bool result = sendSignalData(data, dataSize, SignalData::ROUTE_CONTAINER_DATA);
-	// becouse of vary of route size data array has to be dynamic
-	delete[] data;
-	return result;
+    return sendSignalData(&message);
 }
 
 SignalData ICommHandler::getSignalData(void) const
 {
-	return SignalData(commDispatcher.getDataBuffer());
+    return commDispatcher.getSignalData();
 }
 
 SignalData::Command ICommHandler::getCommand(void) const
 {
-	return SignalData::parseCommand(commDispatcher.getDataBuffer());
+    return commDispatcher.getCommand();
 }
 
-SignalData::CommandParameter ICommHandler::getParameter(void) const
+SignalData::Parameter ICommHandler::getParameter(void) const
 {
-	return SignalData::parseCommandParameter(commDispatcher.getDataBuffer() + IMessage::SIGNAL_COMMAND_SIZE);
-}
-
-void ICommHandler::getSignalDataObject(ISignalPayloadMessage& data)
-{
-	switch (data.getSignalDataCommand())
-	{
-	case SignalData::CALIBRATION_SETTINGS:
-		reinterpret_cast<CalibrationSettings&>(data) = CalibrationSettings(commDispatcher.getSignalDataBuffer());
-		break;
-	case SignalData::CONTROL_SETTINGS:
-		reinterpret_cast<ControlSettings&>(data) = ControlSettings(commDispatcher.getSignalDataBuffer());
-		break;
-	case SignalData::ROUTE_CONTAINER:
-		reinterpret_cast<RouteContainer&>(data) = RouteContainer(commDispatcher.getSignalDataBuffer());
-		break;
-	default:
-		// error should never reach this point
-		break;
-	}
-	commDispatcher.cleanSignalDataBuffer();
-}
-
-CalibrationSettings ICommHandler::getCalibrationSettings(void)
-{
-	const CalibrationSettings result(commDispatcher.getSignalDataBuffer());
-	commDispatcher.cleanSignalDataBuffer();
-	return result;
-}
-
-ControlSettings ICommHandler::getControlSettings(void)
-{
-	const ControlSettings result(commDispatcher.getSignalDataBuffer());
-	commDispatcher.cleanSignalDataBuffer();
-	return result;
-}
-
-RouteContainer ICommHandler::getRouteContainer(void)
-{
-	const RouteContainer result(commDispatcher.getSignalDataBuffer());
-	commDispatcher.cleanSignalDataBuffer();
-	return result;
+    return commDispatcher.getParameter();
 }
 
 DebugData ICommHandler::getDebugData(void) const
 {
-	return DebugData(commDispatcher.getDataBuffer());
+    return commDispatcher.getDebugData();
 }
 
 ControlData ICommHandler::getControlData(void) const
 {
-	return ControlData(commDispatcher.getDataBuffer());
+    return commDispatcher.getControlData();
 }
 
 SensorsData ICommHandler::getSensorsData(void) const
 {
-	return SensorsData(commDispatcher.getDataBuffer());
+    return commDispatcher.getSensorsData();
 }
 
 AutopilotData ICommHandler::getAutopilotData(void) const
 {
-	return AutopilotData(commDispatcher.getDataBuffer());
+    return commDispatcher.getAutopilotData();
+}
+
+void ICommHandler::getSignalDataObject(ISignalPayloadMessage& data)
+{
+    commDispatcher.getSignalDataObject(data);
 }
 
 unsigned ICommHandler::getSentMessages(void) const
@@ -191,12 +125,12 @@ unsigned ICommHandler::getSentMessages(void) const
 
 unsigned ICommHandler::getReceivedMessage(void) const
 {
-	return commDispatcher.getSucessfullReceptionCounter();
+    return commDispatcher.getSucessfullReceptions();
 }
 
 unsigned ICommHandler::getReceptionFailes(void) const
 {
-	return commDispatcher.getFailedReceptionCounter();
+    return commDispatcher.getFailedReceptions();
 }
 
 void ICommHandler::clearCounters(void)
@@ -210,6 +144,26 @@ bool ICommHandler::sendCommand(const SignalData& command)
     return send(command);
 }
 
+bool ICommHandler::waitForCommand(const SignalData& command, const unsigned timeout)
+{
+    resetTimer();
+    while (true) // infinite loop
+    {
+        if (proceedReceiving() == IMessage::SIGNAL)
+        {
+            if (command == getSignalData())
+            {
+                return true;
+            }
+        }
+        if (getTimerValue() > timeout)
+        {
+            return false;
+        }
+        holdThread(10);
+    }
+}
+
 bool ICommHandler::waitForAnyCommand(SignalData& command, const unsigned timeout)
 {
     resetTimer();
@@ -217,8 +171,7 @@ bool ICommHandler::waitForAnyCommand(SignalData& command, const unsigned timeout
     {
 		if (proceedReceiving() == IMessage::SIGNAL)
 		{
-			SignalData::Command commandValue = getCommand();
-			if (!SignalData::hasPayload(commandValue))
+            if (!SignalData::hasPayload(getCommand()))
 			{
 				command = getSignalData();
 				return true;
@@ -232,11 +185,25 @@ bool ICommHandler::waitForAnyCommand(SignalData& command, const unsigned timeout
     }
 }
 
-bool ICommHandler::waitForCommand(const SignalData& command, const unsigned timeout)
+bool ICommHandler::waitForAnyParameter(const Command command, Parameter& parameter, const unsigned timeout)
 {
-	SignalData receivedCommand;
-    return waitForAnyCommand(receivedCommand, timeout)
-		&& receivedCommand == command;
+    resetTimer();
+    while (true) // infinite loop
+    {
+        if (proceedReceiving() == IMessage::SIGNAL)
+        {
+            if (command == getCommand())
+            {
+                parameter = getParameter();
+                return true;
+            }
+        }
+        if (getTimerValue() > timeout)
+        {
+            return false;
+        }
+        holdThread(10);
+    }
 }
 
 bool ICommHandler::sendCommandGetAnyResponse(const SignalData& command, SignalData& response)
@@ -248,11 +215,20 @@ bool ICommHandler::sendCommandGetAnyResponse(const SignalData& command, SignalDa
 	return waitForAnyCommand(response);
 }
 
+bool ICommHandler::sendCommandGetAnyParameter(const SignalData& command, const Command responseCommand, Parameter& response)
+{
+    if (!send(command))
+    {
+        return false;
+    }
+    return waitForAnyParameter(responseCommand, response);
+}
+
 bool ICommHandler::sendCommandGetResponse(const SignalData& command, const SignalData& response)
 {
-	SignalData receivedCommand;
-	return sendCommandGetAnyResponse(command, receivedCommand)
-		&& receivedCommand == response;
+    Parameter receivedParameter;
+    return sendCommandGetAnyParameter(command, response.getCommand(), receivedParameter)
+        && receivedParameter == response.getParameter();
 }
 
 bool ICommHandler::readCommandAndRespond(const SignalData& command, const SignalData& response)
@@ -286,15 +262,18 @@ bool ICommHandler::sendDataProcedure(const ISignalPayloadMessage& data)
 				// sending data successful
 				return true;
 
-			case SignalData::BAD_CRC:
+			case SignalData::DATA_INVALID:
 #ifdef TRACER_H_
-				Tracer::Trace("sendDataProcedure::Bad CRC!", true);
+				Tracer::Trace("sendDataProcedure::DATA_INVALID, retransmitting", true);
 #endif
-			case SignalData::TIMEOUT:
 				// retransmit data
+				break;
+
+			case SignalData::TIMEOUT:
 #ifdef TRACER_H_
-				Tracer::Trace("sendDataProcedure::Timeout, retransmitting", true);
+				Tracer::Trace("sendDataProcedure::TIMEOUT, retransmitting", true);
 #endif
+				// retransmit data
 				break;
 
 			default:
@@ -336,7 +315,7 @@ bool ICommHandler::receiveDataProcedure(ISignalPayloadMessage& data)
 			else
 			{
 #ifdef TRACER_H_
-				Tracer::Trace("receiveDataProcedure::Bad CRC!", true);
+				Tracer::Trace("receiveDataProcedure::DATA_INVALID!", true);
 #endif
 				retransmissionCounter++;
 				if (retransmissionCounter >= MAX_RETRANSMISSION + 1)
@@ -344,14 +323,14 @@ bool ICommHandler::receiveDataProcedure(ISignalPayloadMessage& data)
 					// failed after max retransmissions
 					break;
 				}
-				send(SignalData(data.getSignalDataCommand(), SignalData::BAD_CRC));
+				send(SignalData(data.getSignalDataCommand(), SignalData::DATA_INVALID));
 				resetTimer();
 			}
 		}
 		if (getTimerValue() > DEFAULT_TIMEOUT)
 		{
 #ifdef TRACER_H_
-			Tracer::Trace("receiveDataProcedure::Timeout!", true);
+			Tracer::Trace("receiveDataProcedure::TIMEOUT!", true);
 #endif
 			retransmissionCounter++;
 			if (retransmissionCounter >= MAX_RETRANSMISSION + 1)
@@ -370,65 +349,177 @@ bool ICommHandler::receiveDataProcedure(ISignalPayloadMessage& data)
 	return false;
 }
 
-bool ICommHandler::sendSignalData(const unsigned char* data, const unsigned dataSize, const SignalData::Command type)
+bool ICommHandler::sendSignalData(const ISignalPayloadMessage* const data)
 {
-	const unsigned messageSize = IMessage::PREAMBLE_SIZE + IMessage::SIGNAL_CONSTRAINT_SIZE
-		+ IMessage::SIGNAL_DATA_PAYLOAD_SIZE
-		+ IMessage::CRC_SIZE;
+    ISignalPayloadMessage::MessagesBuilder builder(data);
 
-	const unsigned short messagesCount = 
-		(unsigned short)((double)dataSize / IMessage::SIGNAL_DATA_PAYLOAD_SIZE + 0.99999);
+    unsigned char message[IMessage::SIGNAL_DATA_MESSAGE_SIZE];
 
-	unsigned char message[messageSize] = {};
+    while (builder.hasNext())
+    {
+        builder.getNext(message);
 
-	// preamble
-	const unsigned char preambleChar = IMessage::getPreambleCharByType(IMessage::SIGNAL);
-	for (unsigned i = 0; i < IMessage::PREAMBLE_SIZE - 1; i++)
-	{
-		message[i] = preambleChar;
-	}
-	message[IMessage::PREAMBLE_SIZE - 1] = 0;
-
-	// command
-	const int command = (int)type;
-	memcpy(message + IMessage::PREAMBLE_SIZE, &command, 4);
-
-	// max packets
-	memcpy(message + IMessage::PREAMBLE_SIZE + 4, &messagesCount, 2);
-
-	for (unsigned short i = 0; i < messagesCount; i++)
-	{
-		// actual packet
-		memcpy(message + IMessage::PREAMBLE_SIZE + 4 + 2, &i, 2);
-
-		// payload
-		if (i == messagesCount - 1)
-		{
-			// last packet, copy only bytes that left in data buffer
-			const unsigned sent = (messagesCount - 1) * IMessage::SIGNAL_DATA_PAYLOAD_SIZE;
-			const unsigned left = dataSize - sent;
-			memcpy(message + IMessage::PREAMBLE_SIZE + IMessage::SIGNAL_CONSTRAINT_SIZE,
-				data + i * IMessage::SIGNAL_DATA_PAYLOAD_SIZE,
-				left);
-		}
-		else
-		{
-			memcpy(message + IMessage::PREAMBLE_SIZE + IMessage::SIGNAL_CONSTRAINT_SIZE,
-				data + i * IMessage::SIGNAL_DATA_PAYLOAD_SIZE,
-				IMessage::SIGNAL_DATA_PAYLOAD_SIZE);
-		}
-
-		// crc
-		const unsigned short crcValue = IMessage::computeCrc16(message + IMessage::PREAMBLE_SIZE,
-			SignalData::SIGNAL_CONSTRAINT_SIZE + SignalData::SIGNAL_DATA_PAYLOAD_SIZE);
-		message[messageSize - 2] = (unsigned char)(crcValue & 0xff);
-		message[messageSize - 1] = (unsigned char)((crcValue >> 8) & 0xff);
-
-		// sending message
-		if (!send(message, messageSize))
-		{
-			return false;
-		}
-	}
+        // sending message
+        resetTimer();
+        while (!send(message, IMessage::SIGNAL_DATA_MESSAGE_SIZE))
+        {
+            // according to Multicopter Communication Protocol - max message size is 64 bytes
+            // so timeout should be long enough to send this amount of data
+            // assuming USART as worst case interface and baudrate as 115200
+            // this is about 4ms, so timeout is set to 10 ms
+            if (getTimerValue() >= 10)
+            {
+#ifdef TRACER_H_
+                Tracer::Trace("Sending payload signal data failed after retries, ERROR!", true);
+#endif
+                return false;
+            }
+            holdThread(2);
+        }
+    }
 	return true;
 }
+
+#ifdef __MULTICOPTER_USE_STL__
+
+void ICommHandler::sendCommandEx(const SignalData& command)
+{
+    if (!sendCommand(command))
+    {
+        std::string message = "Sending command: ("
+            + command.toString()
+            + ") failed!";
+        __RL_EXCEPTION__(message.c_str());
+    }
+}
+
+void ICommHandler::waitForCommandEx(const SignalData& command, const unsigned timeout)
+{
+    if (!waitForCommand(command, timeout))
+    {
+        std::string message = "Waiting for command: ("
+            + command.toString()
+            + ") timeout!";
+        __RL_EXCEPTION__(message.c_str());
+    }
+}
+
+SignalData ICommHandler::waitForAnyCommandEx(const unsigned timeout)
+{
+    SignalData result;
+    if (!waitForAnyCommand(result, timeout))
+    {
+        __RL_EXCEPTION__("Waiting for any command timeout!");
+    }
+    return result;
+}
+
+ICommHandler::Parameter ICommHandler::waitForAnyParameterEx(const Command command, const unsigned timeout)
+{
+    Parameter result;
+    if (!waitForAnyParameter(command, result, timeout))
+    {
+        std::string message = "Waiting for any parameter with command: ("
+            + SignalData::toString(command)
+            + ") timeout!";
+        __RL_EXCEPTION__(message.c_str());
+    }
+    return result;
+}
+
+SignalData ICommHandler::sendCommandGetAnyResponseEx(const SignalData& command)
+{
+    SignalData result;
+    if (!sendCommandGetAnyResponse(command, result))
+    {
+        std::string message = "Send command: ("
+            + command.toString()
+            + ") with any response timeout!";
+        __RL_EXCEPTION__(message.c_str());
+    }
+    return result;
+}
+
+ICommHandler::Parameter ICommHandler::sendCommandGetAnyParameterEx(const SignalData& command, const Command responseCommand)
+{
+    Parameter result;
+    if (!sendCommandGetAnyParameter(command, responseCommand, result))
+    {
+        std::string message = "Send command: ("
+            + command.toString()
+            + ") with any response with command: ("
+            + SignalData::toString(responseCommand)
+            + " timeout!";
+        __RL_EXCEPTION__(message.c_str());
+    }
+    return result;
+}
+
+void ICommHandler::sendCommandGetResponseEx(const SignalData& command, const SignalData& response)
+{
+    if (!sendCommandGetResponse(command, response))
+    {
+        std::string message = "Send command: ("
+            + command.toString()
+            + ") with response: ("
+            + response.toString()
+            + ") failed!";
+        __RL_EXCEPTION__(message.c_str());
+    }
+}
+
+void ICommHandler::readCommandAndRespondEx(const SignalData& command, const SignalData& response)
+{
+    if (!sendCommandGetResponse(command, response))
+    {
+        std::string message = "Read command: ("
+            + command.toString()
+            + ") and respond: ("
+            + response.toString()
+            + ") failed!";
+        __RL_EXCEPTION__(message.c_str());
+    }
+}
+
+void ICommHandler::sendDataProcedureEx(const ISignalPayloadMessage& signalPayloadMessage)
+{
+    if (!sendDataProcedure(signalPayloadMessage))
+    {
+        const std::string message = "Sending "
+                + SignalData::toString(signalPayloadMessage.getSignalDataCommand())
+                + " failed!";
+        __RL_EXCEPTION__(message.c_str());
+    }
+}
+
+CalibrationSettings ICommHandler::receiveCalibarionSettingsEx()
+{
+    CalibrationSettings result;
+    if (!receiveDataProcedure(result))
+    {
+        __RL_EXCEPTION__("Receiving calibration settings failed!");
+    }
+    return result;
+}
+
+ControlSettings ICommHandler::receiveControlSettingsEx()
+{
+    ControlSettings result;
+    if (!receiveDataProcedure(result))
+    {
+        __RL_EXCEPTION__("Receiving control settings failed!");
+    }
+    return result;
+}
+
+RouteContainer ICommHandler::receiveRouteContainerEx()
+{
+    RouteContainer result;
+    if (!receiveDataProcedure(result))
+    {
+        __RL_EXCEPTION__("Receiving route container failed!");
+    }
+    return result;
+}
+
+#endif //__MULTICOPTER_USE_STL__

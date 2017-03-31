@@ -4,11 +4,22 @@
 #ifndef __ROUTE_CONTAINER__
 #define __ROUTE_CONTAINER__
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <vector>
+
+#endif // __MULTICOPTER_USE_STL__
+
 #include "ISignalPayloadMessage.hpp"
 
 #include "SignalData.hpp"
 #include "Waypoint.hpp"
 
+/**
+ * =============================================================================================
+ * RouteContainer
+ * =============================================================================================
+ */
 class RouteContainer : public ISignalPayloadMessage
 {
 public:
@@ -29,18 +40,30 @@ public:
 	RouteContainer(const Waypoint* const _route, const unsigned _routeSize,
 		const float _waypointTime, const float _baseTime);
 
+#ifdef __MULTICOPTER_USE_STL__
+
+    RouteContainer(const std::vector<Waypoint>& routeVector,
+        const float _waypointTime, const float _baseTime);
+
+#endif // __MULTICOPTER_USE_STL__
+
 	void serialize(unsigned char* dst) const;
 
 	unsigned getDataSize() const;
 
 	SignalData::Command getSignalDataType(void) const;
 	SignalData::Command getSignalDataCommand(void) const;
+    SignalData::Command getUploadAction(void) const;
 
     MessageType getMessageType(void) const;
 
 	bool isValid(void) const;
 
+    unsigned getCrc(void) const;
+
 	void setCrc(void);
+
+    ISignalPayloadMessage* clone(void) const;
 
 	unsigned getRouteBinarySize(void) const;
 

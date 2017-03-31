@@ -1,5 +1,11 @@
 #include "IMessage.hpp"
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include "Exception.hpp"
+
+#endif // __MULTICOPTER_USE_STL__
+
 unsigned IMessage::getPayloadSize(void) const
 {
 	return getPayloadSizeByType(getPreambleType());
@@ -13,7 +19,6 @@ unsigned IMessage::getMessageSize(void) const
 void IMessage::serializeMessage(unsigned char* data) const
 {
 	const unsigned size = getMessageSize();
-
 	const unsigned char preambleChar = getPreambleCharByType(getPreambleType());
 	for (unsigned i = 0; i < PREAMBLE_SIZE - 1; i++)
 	{
@@ -35,23 +40,14 @@ unsigned char* IMessage::createMessage(void) const
 	const unsigned size = getMessageSize();
 	unsigned char* message = new unsigned char[size]();
 
-	// preamble
-	const unsigned char preambleChar = getPreambleCharByType(getPreambleType());
-	for (unsigned i = 0; i < PREAMBLE_SIZE - 1; i++)
-	{
-		message[i] = preambleChar;
-	}
-	message[PREAMBLE_SIZE - 1] = 0;
-
-	// payload
-	serialize(message + PREAMBLE_SIZE);
-
-	// crc
-	const unsigned short crcValue = computeCrc16(message + PREAMBLE_SIZE, getPayloadSize());
-	message[size - 2] = (unsigned char)(crcValue & 0xff);
-	message[size - 1] = (unsigned char)((crcValue >> 8) & 0xff);
+    serializeMessage(message);
 
 	return message;
+}
+
+bool IMessage::isSignalPayloadMessage(void) const
+{
+    return false;
 }
 
 IMessage::~IMessage(void)
@@ -148,3 +144,34 @@ unsigned IMessage::computeCrc32(const unsigned char* data, const unsigned dataSi
 	}
 	return (unsigned)(~crc);
 }
+
+#ifdef __MULTICOPTER_USE_STL__
+
+std::string IMessage::toString(void) const
+{
+    return getMessageName();
+}
+
+std::string IMessage::getMessageName(void) const
+{
+    return toString(getMessageType());
+}
+
+std::string IMessage::toString(const MessageType type)
+{
+    switch (type)
+    {
+    case DEBUG_DATA: return "DEBUG_DATA";
+    case CONTROL_DATA: return "CONTROL_DATA";
+    case SENSORS_DATA: return "SENSORS_DATA";
+    case AUTOPILOT_DATA: return "AUTOPILOT_DATA";
+    case SIGNAL_DATA: return "SIGNAL_DATA";
+    case CALIBRATION_SETTINGS: return "CALIBRATION_SETTINGS";
+    case CONTROL_SETTINGS: return "CONTROL_SETTINGS";
+    case ROUTE_CONTAINER: return "ROUTE_CONTAINER";
+    case WIFI_CONFIGURATION: return "WIFI_CONFIGURATION";
+    default: __RL_EXCEPTION__("IMessage::toString::Unexpected message type");
+    }
+}
+
+#endif // __MULTICOPTER_USE_STL__

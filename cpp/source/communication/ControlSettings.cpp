@@ -1,5 +1,11 @@
 #include "ControlSettings.hpp"
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include "Exception.hpp"
+
+#endif // __MULTICOPTER_USE_STL__
+
 #include <string.h>
 
 #include "IMessage.hpp"
@@ -35,6 +41,11 @@ SignalData::Command ControlSettings::getSignalDataCommand(void) const
 	return SignalData::CONTROL_SETTINGS;
 }
 
+SignalData::Command ControlSettings::getUploadAction(void) const
+{
+    return SignalData::UPLOAD_SETTINGS;
+}
+
 IMessage::MessageType ControlSettings::getMessageType(void) const
 {
     return CONTROL_SETTINGS;
@@ -44,7 +55,8 @@ bool ControlSettings::isValid(void) const
 {
 	switch (uavType)
 	{
-	case TRICOPTER:
+    case TRICOPTER_REAR:
+    case TRICOPTER_FRONT:
 	case QUADROCOPTER_X:
 	case QUADROCOPTER_PLUS:
 	case HEXACOPTER_X:
@@ -118,6 +130,11 @@ bool ControlSettings::isValid(void) const
 	return IMessage::computeCrc32(dataTab, getDataSize() - 4) == crcValue;
 }
 
+unsigned ControlSettings::getCrc(void) const
+{
+    return crcValue;
+}
+
 void ControlSettings::setCrc(void)
 {
 	unsigned char dataTab[sizeof(ControlSettings)];
@@ -125,19 +142,24 @@ void ControlSettings::setCrc(void)
 	crcValue = IMessage::computeCrc32(dataTab, getDataSize() - 4);
 }
 
+ISignalPayloadMessage* ControlSettings::clone(void) const
+{
+    return new ControlSettings(*this);
+}
+
 float ControlSettings::getBatteryErrorLevel(void) const
 {
-	return batteryType * 3.5f;
+	return (float)batteryType * 3.5f;
 }
 
 float ControlSettings::getBatteryWarningLevel(void) const
 {
-	return batteryType * 3.7f;
+	return (float)batteryType * 3.7f;
 }
 
 float ControlSettings::getBatteryMaxLevel(void) const
 {
-	return batteryType * 4.2f;
+	return (float)batteryType * 4.2f;
 }
 
 bool ControlSettings::isBatteryError(const float voltage) const
@@ -231,7 +253,7 @@ ControlSettings ControlSettings::createDefault(void)
 
 	defaultControlSettings.gpsSensorPosition = Vect3Df();
 
-	defaultControlSettings.flags = 0;
+    defaultControlSettings.flags = 0;
 
 	return defaultControlSettings;
 }
@@ -251,3 +273,329 @@ ControlData ControlSettings::getControlDataForLogs(const ControlData& controlDat
 	result.setEuler(resultEuler);
 	return result;
 }
+
+float ControlSettings::retriveAngleTuner(void)
+{
+    return 0.5f;
+}
+
+float ControlSettings::retriveRateTuner(void)
+{
+    return 0.5f;
+}
+
+float ControlSettings::getTunerRpProp(const float tuner)
+{
+    return 6.0f*tuner + 3.0f;
+}
+
+Vect3Df ControlSettings::getTunerRpRate(const float tuner)
+{
+    const float tunerPow = tuner*tuner;
+    const float p = 0.69333f*tunerPow + 0.08667f;
+    return Vect3Df(
+                p,
+                p * 0.6f,
+                0.03200f*tunerPow + 0.00400f);
+}
+
+float ControlSettings::getTunerYawProp(const float tuner)
+{
+    return 6.0f*tuner + 3.0f;
+}
+
+Vect3Df ControlSettings::getTunerYawRate(const float tuner)
+{
+    const float tunerPow = tuner*tuner;
+    return Vect3Df(
+                0.69333f*tunerPow + 0.08667f,
+                0.34667f*tunerPow + 0.43333f,
+                0.03200f*tunerPow + 0.00400f);
+}
+
+Vect2Df ControlSettings::retriveAutopilotTuners(void)
+{
+    return Vect2Df(
+            0.5f,
+            0.5f);
+}
+
+Vect2Df ControlSettings::getTunerVerticalPropSpeed(const float speed, const float force)
+{
+    return Vect2Df(
+                3.21f*speed*force + 4.2f,
+                2.31f*speed*force + 2.1f);
+}
+
+Vect3Df ControlSettings::getTunerVerticalAccel(const float speed, const float force)
+{
+    return Vect3Df(
+                0.9333f*speed*force + 0.0867f,
+                0.34667f*speed*force + 0.4333f,
+                0.320f*speed*force + 0.040f);
+}
+
+Vect2Df ControlSettings::getTunerHorizontalPropSpeed(const float speed, const float force)
+{
+    return Vect2Df(
+                1.21f*speed*force + 2.2f,
+                3.31f*speed*force + 2.1f);
+}
+
+Vect3Df ControlSettings::getTunerHorizontalAccel(const float speed, const float force)
+{
+    return Vect3Df(
+                0.2933f*speed*force + 0.0867f,
+                0.767f*speed*force + 0.4333f,
+                0.9320f*speed*force + 0.1f);
+}
+
+#ifdef __MULTICOPTER_USE_STL__
+
+std::string ControlSettings::getUavTypeString(void) const
+{
+    switch (uavType)
+    {
+    case ControlSettings::TRICOPTER_REAR:
+        return std::string("Tricopter rear");
+    case ControlSettings::TRICOPTER_FRONT:
+        return std::string("Tricopter front");
+    case ControlSettings::QUADROCOPTER_X:
+        return std::string("Quadrocopter \"X\"");
+    case ControlSettings::QUADROCOPTER_PLUS:
+        return std::string("Quadrocopter \"+\"");
+    case ControlSettings::HEXACOPTER_X:
+        return std::string("Hexacopter \"X\"");
+    case ControlSettings::HEXACOPTER_PLUS:
+        return std::string("Hexacopter \"+\"");
+    case ControlSettings::OCTOCOPTER_X:
+        return std::string("Octocopter \"X\"");
+    case ControlSettings::OCTOCOPTER_PLUS:
+        return std::string("Octocopter \"+\"");
+    default:
+        return std::string("Error");
+    }
+}
+std::string ControlSettings::getInitialSolverString(void) const
+{
+    return ControlData::getSolverModeString(
+        (ControlData::SolverMode)initialSolverMode);
+}
+
+std::string ControlSettings::getManualThrottleString(void) const
+{
+    switch (manualThrottleMode)
+    {
+    case ControlSettings::STATIC:
+        return std::string("Static");
+    case ControlSettings::DYNAMIC:
+        return std::string("Dynamic");
+    default:
+        return std::string("Error");
+    }
+}
+
+std::string ControlSettings::getStickModeString(void) const
+{
+    switch (stickMovementMode)
+    {
+    case ControlSettings::COPTER:
+        return std::string("Copter");
+    case ControlSettings::GEOGRAPHIC:
+        return std::string("Geographic");
+    case ControlSettings::BASE_POINT:
+        return std::string("Base point");
+    default:
+        return std::string("Error");
+    }
+}
+
+std::string ControlSettings::getBatteryTypeString(void) const
+{
+    if (batteryType != ControlSettings::UNDEFINED)
+    {
+        return std::to_string((long long)batteryType) + "S";
+    }
+    else
+    {
+        return "Disabled";
+    }
+}
+
+std::string ControlSettings::getErrorHandlingActionString(void) const
+{
+    return ControlData::getControllerCommandString(
+        (ControlData::ControllerCommand)errorHandlingAction);
+}
+
+std::string ControlSettings::getEscPwmFreqString(void) const
+{
+    switch (escPwmFreq)
+    {
+    case ControlSettings::SLOW:
+        return std::string("Slow");
+    case ControlSettings::MEDIUM:
+        return std::string("Medium");
+    case ControlSettings::FAST:
+        return std::string("Fast");
+    case ControlSettings::VERY_FAST:
+        return std::string("Very fast");
+    case ControlSettings::ONESHOT_125:
+        return std::string("Oneshot125");
+    default:
+        return std::string("Error");
+    }
+}
+
+std::vector<std::string> ControlSettings::getUavTypes(void)
+{
+    return std::vector<std::string> {
+        "Tricopter",
+        "Quadrocopter \"X\"",
+        "Quadrocopter \"+\"",
+        "Hexacopter \"X\"",
+        "Hexacopter \"+\"",
+        "Octocopter \"X\"",
+        "Octocopter \"+\""
+    };
+}
+
+std::vector<std::string> ControlSettings::getSolvers(void)
+{
+    return std::vector<std::string> {
+        "Stabilization",
+        "Angle",
+        "Angle no yaw"
+    };
+}
+
+std::vector<std::string> ControlSettings::getThrottleModes(void)
+{
+    return std::vector<std::string> {
+        "Static",
+        "Dynamic"
+    };
+}
+
+std::vector<std::string> ControlSettings::getStickModes(void)
+{
+    return std::vector<std::string> {
+        "Copter",
+        "Geographic",
+        "Base point"
+    };
+}
+
+std::vector<std::string> ControlSettings::getBatteryTypes(void)
+{
+    return std::vector<std::string> {
+        "Disabled",
+        "2S",
+        "3S",
+        "4S",
+        "5S",
+        "6S"
+    };
+}
+
+std::vector<std::string> ControlSettings::getErrorHandlingActions(void)
+{
+    return std::vector<std::string> {
+        ControlData::getControllerCommandString(ControlData::AUTOLANDING),
+        ControlData::getControllerCommandString(ControlData::AUTOLANDING_AP),
+        ControlData::getControllerCommandString(ControlData::BACK_TO_BASE)
+    };
+}
+
+std::vector<std::string> ControlSettings::getEscPwmFreqs(void)
+{
+    return std::vector<std::string> {
+        "Slow",
+        "Medium",
+        "Fast",
+        "Very fast",
+        "Oneshot125"
+    };
+}
+
+ControlSettings::UavType ControlSettings::getUavType(const std::string& uavTypeString)
+{
+    if (uavTypeString == "Tricopter rear") return ControlSettings::TRICOPTER_REAR;
+    else if (uavTypeString == "Tricopter front") return ControlSettings::TRICOPTER_FRONT;
+    else if (uavTypeString == "Quadrocopter \"X\"") return ControlSettings::QUADROCOPTER_X;
+    else if (uavTypeString == "Quadrocopter \"+\"") return ControlSettings::QUADROCOPTER_PLUS;
+    else if (uavTypeString == "Hexacopter \"X\"") return ControlSettings::HEXACOPTER_X;
+    else if (uavTypeString == "Hexacopter \"+\"") return ControlSettings::HEXACOPTER_PLUS;
+    else if (uavTypeString == "Octocopter \"X\"") return ControlSettings::OCTOCOPTER_X;
+    else if (uavTypeString == "Octocopter \"+\"") return ControlSettings::OCTOCOPTER_PLUS;
+    else __RL_EXCEPTION__("Incorrect string for UavType");
+}
+
+ControlData::SolverMode ControlSettings::getSolverMode(const std::string& solverMode)
+{
+    if (solverMode == "Stabilization") return ControlData::STABLILIZATION;
+    else if (solverMode == "Angle") return ControlData::ANGLE;
+    else if (solverMode == "Angle no yaw") return ControlData::ANGLE_NO_YAW;
+    else __RL_EXCEPTION__("Incorrect string for InitialSolverMode");
+}
+
+ControlSettings::ThrottleMode ControlSettings::getManualThrottleMode(const std::string& throttleMode)
+{
+    if (throttleMode == "Static") return ControlSettings::STATIC;
+    else if (throttleMode == "Dynamic") return ControlSettings::DYNAMIC;
+    else __RL_EXCEPTION__("Incorrect string for MaunalThrottleMode");
+}
+
+ControlSettings::StickMovementMode ControlSettings::getStickMode(const std::string& stickMode)
+{
+    if (stickMode == "Copter") return ControlSettings::COPTER;
+    else if (stickMode == "Geographic") return ControlSettings::GEOGRAPHIC;
+    else if (stickMode == "Base point") return ControlSettings::BASE_POINT;
+    else __RL_EXCEPTION__("Incorrect string for StickMode");
+}
+
+ControlSettings::BatteryType ControlSettings::getBatteryType(const std::string& batteryType)
+{
+    if (batteryType == "Disabled")
+    {
+        return ControlSettings::UNDEFINED;
+    }
+    else
+    {
+        const char str = batteryType.c_str()[0];
+        return (ControlSettings::BatteryType)atoi(&str);
+    }
+}
+
+ControlData::ControllerCommand ControlSettings::getErrorHandlingAction(const std::string& string)
+{
+    if (string == ControlData::getControllerCommandString(ControlData::AUTOLANDING))
+        return ControlData::AUTOLANDING;
+    else if (string == ControlData::getControllerCommandString(ControlData::AUTOLANDING_AP))
+        return ControlData::AUTOLANDING_AP;
+    else if (string == ControlData::getControllerCommandString(ControlData::BACK_TO_BASE))
+        return ControlData::BACK_TO_BASE;
+    else
+        __RL_EXCEPTION__("Incorrect string for ErrorHandlingAction");
+}
+
+ControlSettings::EscPwmFreq ControlSettings::getEscPwmFreq(const std::string& string)
+{
+    if (string == "Slow") return ControlSettings::SLOW;
+    else if (string == "Medium") return ControlSettings::MEDIUM;
+    else if (string == "Fast") return ControlSettings::FAST;
+    else if (string == "Very fast") return ControlSettings::VERY_FAST;
+    else if (string == "Oneshot125") return ControlSettings::ONESHOT_125;
+    else __RL_EXCEPTION__("Incorrect string for EscPwmFreq");
+}
+
+std::ostream& operator << (std::ostream& stream, const ControlSettings& cS)
+{
+    stream << "CONTROL SETTINGS: " << std::endl;
+    stream << "roll:   " << cS.pidRollRate.x << "	" << cS.pidRollRate.y << "	" << cS.pidRollRate.z  << std::endl;
+    stream << "pitch:  " << cS.pidPitchRate.x << "	" << cS.pidPitchRate.y << "	" << cS.pidPitchRate.z << std::endl;
+    stream << "yaw:    " << cS.pidYawRate.x << "	" << cS.pidYawRate.y << "	" << cS.pidYawRate.z << std::endl;
+    return stream;
+}
+
+#endif // __MULTICOPTER_USE_STL__

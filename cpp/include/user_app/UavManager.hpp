@@ -1,118 +1,142 @@
-#ifndef __UAV_MANAGER__
-#define __UAV_MANAGER__
+//#ifndef __UAV_MANAGER__
+//#define __UAV_MANAGER__
 
-#include "IUavMonitor.hpp"
+//#include "IUavMonitor.hpp"
 
-#include "UavEvent.hpp"
-#include "UserUavEvent.hpp"
+//#include "UavEvent.hpp"
+//#include "UserUavEvent.hpp"
 
-#include "IAppCommHandler.hpp"
+//#include "ICommHandler.hpp"
 
-#include <mutex>
+//#include <mutex>
+//#include <atomic>
+//#include <condition_variable>
 
-class UavManager
-{
-public:
-    // any UAV action type has its equivalent in signal data command
-    typedef SignalData::Command UavAction;
-    typedef UserUavEvent::Type ExternalEvent;
+///**
+// * =============================================================================================
+// * Purpose of this class is to reflect data state of controller board and provides high level API
+// * for controlling the connected UAV. By this class user can start application loops and any action
+// * over application loop, including flight loop. Also this class posts events from UAV as UavEvents
+// * to all listeners.
+// * =============================================================================================
+// */
+//class UavManager
+//{
+//public:
+//    // any UAV action type has its equivalent in signal data command
+//    typedef SignalData::Command UavAction;
+//    typedef UserUavEvent::Type ExternalEvent;
 
-	static std::string toString(const SignalData& command);
-    static std::string toString(const SignalData::Command& command);
-    static std::string toString(const SignalData::CommandParameter& parameter);
+//    /**
+//     * UavManager
+//     */
+//    UavManager(ICommHandler* const _commHandler, IUavMonitor* const _uavMonitor,
+//               const float _pingFreq, const float _controlFreq, const float _connectionTimeout);
 
-    UavManager(IAppCommHandler* const _commHandler, IUavMonitor* const _uavMonitor, const float _pingFreq);
+//    virtual ~UavManager(void);
 
-    virtual ~UavManager(void);
+//    /**
+//     * runAppLoop method has to be called from their own thread that will handle
+//     * connection procedure and handling and will emit events through IUavMonitor
+//     */
+//    void runAppLoop(ICommInterface* commInterface);
 
-    void preformAction(const UavAction& uavAction);
-    void preformActionUpload(const ControlSettings* const controlSettings);
-    void preformActionUpload(const RouteContainer* const routeContainer);
+//    /**
+//     * runExternalSensorsLogger
+//     */
+//    void runExternalSensorsLogger(ICommInterface* commInterface);
 
-    void setControlData(const ControlData& controlData);
+//    /**
+//     * runOfflineUpgrade
+//     */
+//    void runOfflineUpgrade(ICommInterface* commInterface);
 
-    void notifyUserUavEvent(const UserUavEvent* userUavEvent);
+//    /**
+//     * Starts specified action. Throws exception when UAV thread can not
+//     * start this action.
+//     */
+//    void preformAction(const UavAction& uavAction);
 
-    // these 'connect' methods has to be called from their own thread that will handle
-    // connection procedure and handling and will emit events through IUavMonitor
-    void runAppLoop(ICommInterface* commInterface);
-    void runExternalSensorsLogger(ICommInterface* commInterface);
+//    /**
+//     * Starts upload of SignalPayloadMessage to board with propper signal fow.
+//     * Throws exception when UAV thread can not start this action.
+//     */
+//    void preformActionUpload(const ISignalPayloadMessage& container);
 
-    // get stored signal payload messages received from boards
-    const CalibrationSettings* getCalibrationSettings(void) const;
-    const ControlSettings* getControlSettings(void) const;
-    const RouteContainer* getRouteContainer(void) const;
+//    /**
+//     * Sends event tu UAV thread and deletes its pointer. This is the main
+//     * way of communication with UAV thread.
+//     */
+//    void notifyUserUavEvent(const UserUavEvent* const userUavEvent);
 
-protected:
-    static const long MAX_NO_CONNECTION_TIME = 1500; // [ms]
-    static const unsigned SENDING_FREQ = 25; // [Hz]
+//    /**
+//     * Unconditionaly kills UAV thread, APPLICATION_LOOP_TERMINATED will be emitted.
+//     * Should be used with deep understanding of consequences of killing connection.
+//     */
+//    void terminate(void);
 
-    // mutex for in-connection data handling
-    // applied for app. loop control: externalEvents and actions
-    // setting flight loop control data to send
-    std::mutex mutex;
+//protected:
+//    // handler for communication issues
+//    ICommHandler* const commHandler;
 
-    void setOngoingAction(const UavAction& _uavAction);
-    UavAction getOngoingAction(void);
+//    // listener for events emitted from connection loops
+//    IUavMonitor* const uavMonitor;
 
-    void setExternalEvent(const ExternalEvent& _externalEvent);
-    ExternalEvent getExternalEvent(void);
+//    // intervals for frequent tasks over loops [ms]
+//    const clock_t pingInterval, controlInterval;
 
-    ControlData getControlData(void);
+//    // time after connection lost will be set to debug data when no data received
+//    const clock_t connectionTimeout;
 
-    // handler for communication issues
-    IAppCommHandler* const commHandler;
+//    // synchronization features for comm control
+//    std::mutex mutex;
+//    std::condition_variable isExternalEventSet;
 
-    // listener for events emitted from connection loops
-    IUavMonitor* const uavMonitor;
+//    std::atomic<bool> inApplicationLoop;
+//    std::atomic<bool> inFlightLoop;
+//    std::atomic<bool> inExternalSensorsLogger;
 
-    // data structures that reflects board state
-    CalibrationSettings* calibrationSettings;
-    ControlSettings* controlSettings;
-    RouteContainer* routeContainer;
+//    std::atomic<UavAction> ongoingAction;
+//    std::atomic<ExternalEvent> externalEvent;
+//    std::atomic<bool> terminator;
 
-    // data structures that are to be sent to UAV
-    ControlData controlDataToSend;
-    ControlSettings* controlSettingsToSend;
-    RouteContainer* routeContainerToSend;
+//    // data structures that are to be sent to UAV
+//    ISignalPayloadMessage* containerToSend;
 
-    UavAction ongoingAction;
-    ExternalEvent externalEvent;
+//    // ping feature variables
+//    int sentPingValue;
+//    clock_t sentPingTime;
 
-    const unsigned pingInterval;
+//    void connectionProcedure(void);
 
-    int sentPingValue;
-    clock_t sentPingTime;
+//    void applicationLoop(void);
 
-    bool inApplicationLoop;
-    bool inFlightLoop;
-    bool inExternalSensorsLogger;
+//    void handleSignalData(const SignalData& signalData);
+//    bool executeAction(void);
 
-    void connectionProcedure(void);
+//    // main uav interaction methods
+//    bool flightLoop(void);
+//    bool calibrateAccelerometer(void);
+//    bool calibrateMagnetometer(void);
+//    bool uploadSettings(void);
+//    bool downloadSettings(void);
+//    bool calibrateEsc(void);
+//    bool calibrateRadioReceiver(void);
+//    bool checkRadioReceiver(void);
+//    bool softwareUpgrade(void);
+//    bool reset(void);
+//    bool uploadRoute(void);
+//    bool downloadRoute(void);
+//    bool sensorsLogger(void);
+//    bool configureWifi(void);
 
-    std::string applicationLoop(void);
+//    std::string externalSensorsLogger(void);
 
-    void handleSignalData(const SignalData& signalData);
-    bool executeAction(void);
+//    void triggerPing(void);
+//    void handlePong(const SignalData& signalData) const;
 
-    // main uav interaction methods
-    bool flightLoop(void);
-    bool calibrateAccelerometer(void);
-    bool calibrateMagnetometer(void);
-    bool uploadSettings(void);
-    bool downloadSettings(void);
-    bool calibrateEsc(void);
-    bool calibrateRadioReceiver(void);
-    bool checkRadioReceiver(void);
-    bool softwareUpgrade(void);
-    bool reset(void);
-    bool uploadRoute(void);
-    bool downloadRoute(void);
-    bool sensorsLogger(void);
+//    void exceptNotConnected(void) const;
+//    void exceptAlreadyPreforming(void) const;
+//};
 
-    std::string externalSensorsLogger(void);
-
-    void exceptAlreadyPreforming(void) const;
-};
-
-#endif // __UAV_MANAGER__
+//#endif // __UAV_MANAGER__

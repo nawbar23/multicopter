@@ -34,7 +34,10 @@ const char* Exception::what() const //noexcept
 }
 #endif
 
-
+const std::string& Exception::message(void) const
+{
+    return whatMessage;
+}
 
 const std::vector<std::string>& Exception::getTrace(void)
 {
@@ -43,9 +46,9 @@ const std::vector<std::string>& Exception::getTrace(void)
 
 void Exception::printTrace(void)
 {
-    for (std::vector<std::string>::iterator it = trace.begin(); it != trace.end(); ++it)
+    for (const std::string& tr : trace)
     {
-        std::cout << *it << "\n";
+        std::cout << tr << "\n";
     }
     trace.clear();
 }

@@ -4,8 +4,20 @@
 #ifndef __GPS_DATA__
 #define __GPS_DATA__
 
+#ifdef __MULTICOPTER_USE_STL__
+
+#include <iostream>
+#include <sstream>
+
+#endif //__MULTICOPTER_USE_STL__
+
 #include "MathCore.hpp"
 
+/**
+ * =============================================================================================
+ * GpsData
+ * =============================================================================================
+ */
 class GpsData
 {
 public:
@@ -19,6 +31,15 @@ public:
 	GpsData(const unsigned char* tab);
 
 	void serialize(unsigned char* tab) const;
+
+#ifdef __MULTICOPTER_USE_STL__
+
+	void print(void) const;
+	static GpsData parseFromString(const std::string& line);
+	friend std::ostream& operator << (std::ostream& stream, const GpsData& gD);
+
+#endif // __MULTICOPTER_USE_STL__
+
 };
 
 #endif // __GPS_DATA__

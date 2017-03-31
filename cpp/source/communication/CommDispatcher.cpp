@@ -1,5 +1,10 @@
 #include "CommDispatcher.hpp"
 
+#include "CalibrationSettings.hpp"
+#include "ControlSettings.hpp"
+#include "RouteContainer.hpp"
+#include "WifiConfiguration.hpp"
+
 #include <string.h>
 
 #ifdef STM32F40_41xxx
@@ -41,31 +46,139 @@ const IMessage::PreambleType& CommDispatcher::getPreambleType(void) const
 	return activePreambleType;
 }
 
-const unsigned char* CommDispatcher::getDataBuffer(void) const
+SignalData::Command CommDispatcher::getCommand(void) const
 {
-	return dataBuffer;
+    return SignalData::parseCommand(dataBuffer);
 }
 
-const unsigned char* CommDispatcher::getSignalDataBuffer(void) const
+SignalData::Parameter CommDispatcher::getParameter(void) const
 {
-	return signalDataBuffer;
+    return SignalData::parseParameter(dataBuffer + IMessage::SIGNAL_COMMAND_SIZE);
 }
 
-void CommDispatcher::cleanSignalDataBuffer(void)
+SignalData CommDispatcher::getSignalData(void) const
 {
-	if (signalDataBuffer != NULL)
-	{
-		delete[] signalDataBuffer;
-		signalDataBuffer = NULL;
-	}
+    return SignalData(dataBuffer);
 }
 
-unsigned CommDispatcher::getSucessfullReceptionCounter(void) const
+DebugData CommDispatcher::getDebugData(void) const
+{
+    return DebugData(dataBuffer);
+}
+
+ControlData CommDispatcher::getControlData(void) const
+{
+    return ControlData(dataBuffer);
+}
+
+SensorsData CommDispatcher::getSensorsData(void) const
+{
+    return SensorsData(dataBuffer);
+}
+
+AutopilotData CommDispatcher::getAutopilotData(void) const
+{
+    return AutopilotData(dataBuffer);
+}
+
+void CommDispatcher::getSignalDataObject(ISignalPayloadMessage& data)
+{
+    switch (data.getSignalDataCommand())
+    {
+    case SignalData::CALIBRATION_SETTINGS:
+        reinterpret_cast<CalibrationSettings&>(data) = CalibrationSettings(signalDataBuffer);
+        break;
+    case SignalData::CONTROL_SETTINGS:
+        reinterpret_cast<ControlSettings&>(data) = ControlSettings(signalDataBuffer);
+        break;
+    case SignalData::ROUTE_CONTAINER:
+        reinterpret_cast<RouteContainer&>(data) = RouteContainer(signalDataBuffer);
+        break;
+    case SignalData::WIFI_CONFIGURATION:
+        reinterpret_cast<WifiConfiguration&>(data) = WifiConfiguration(signalDataBuffer);
+        break;
+    default:
+        // error should never reach this point
+        break;
+    }
+    cleanSignalDataBuffer();
+}
+
+IMessage* CommDispatcher::retriveMessage(const IMessage::PreambleType preamble,
+                                         const IMessage::MessageType expectedControlMessageType)
+{
+    switch (preamble)
+    {
+    case IMessage::CONTROL:
+        switch (expectedControlMessageType)
+        {
+        case IMessage::DEBUG_DATA:
+            return new DebugData(dataBuffer);
+
+        case IMessage::CONTROL_DATA:
+            return new ControlData(dataBuffer);
+
+        case IMessage::SENSORS_DATA:
+            return new SensorsData(dataBuffer);
+
+        default: // error
+            return NULL;
+        }
+        break;
+
+    case IMessage::SIGNAL:
+        return retriveSignalMessage();
+
+    case IMessage::AUTOPILOT:
+        return new AutopilotData(dataBuffer);
+
+    default: // error
+        return NULL;
+    }
+}
+
+IMessage* CommDispatcher::retriveSignalMessage(void)
+{
+    const SignalData::Command command = getCommand();
+    if (SignalData::hasPayload(command))
+    {
+        IMessage* result;
+        switch (command)
+        {
+        case SignalData::CALIBRATION_SETTINGS_DATA:
+            result = new CalibrationSettings(signalDataBuffer);
+            break;
+
+        case SignalData::CONTROL_SETTINGS_DATA:
+            result = new ControlSettings(signalDataBuffer);
+            break;
+
+        case SignalData::ROUTE_CONTAINER_DATA:
+            result = new RouteContainer(signalDataBuffer);
+            break;
+
+        case SignalData::WIFI_CONFIGURATION_DATA:
+            result = new WifiConfiguration(signalDataBuffer);
+            break;
+
+        default: // error
+            result = NULL;
+        }
+        cleanSignalDataBuffer();
+        return result;
+    }
+    else
+    {
+        return new SignalData(dataBuffer);
+    }
+}
+
+unsigned CommDispatcher::getSucessfullReceptions(void) const
 {
 	return sucessfullReceptionCounter;
 }
 
-unsigned CommDispatcher::getFailedReceptionCounter(void) const
+unsigned CommDispatcher::getFailedReceptions(void) const
 {
 	return failedReceptionCounter;
 }
@@ -261,6 +374,14 @@ bool CommDispatcher::isSignalDataComplete(void)
 	return signalDataPacketsToReceive == signalDataPacketsReceived;
 }
 
+void CommDispatcher::cleanSignalDataBuffer(void)
+{
+    if (signalDataBuffer != NULL)
+    {
+        delete[] signalDataBuffer;
+        signalDataBuffer = NULL;
+    }
+}
 
 bool CommDispatcher::isValidMessageCrc(void) const
 {
