@@ -59,6 +59,20 @@ public:
 		GPS_FIX
 	};
 
+	Vect3Df euler; // rotation [roll; pitch; yaw] [rad]
+	Vect2Df position; // location [lat; lon;] [deg]
+	float altitude; // altitude (at the moment relative)
+
+	float velocity; // velocity relative to XY earth plane [m/s]
+
+	unsigned short controllerState; // ControllerState
+
+	// flags:
+	// GPS fix | GPS 3D fix | low batt. V | errorHandling | autopilotUsed | autolanding | solver1 | solver2
+	Flags<unsigned char> flagsObj;
+
+	unsigned char battery; // percent of battery capacity
+
 	DebugData(void);
 	DebugData(const unsigned char* src);
 
@@ -110,21 +124,6 @@ public:
 	friend std::ostream& operator << (std::ostream& stream, const DebugData& debugData);
 
 #endif //__MULTICOPTER_USE_STL__
-
-private:
-	Vect3Df euler; // rotation [roll; pitch; yaw] [rad]
-	Vect2Df position; // location [lat; lon;] [deg]
-	float altitude; // altitude (at the moment relative)
-
-	float velocity; // velocity relative to XY earth plane [m/s]
-
-	unsigned short controllerState; // ControllerState
-
-	// flags:
-	// GPS fix | GPS 3D fix | low batt. V | errorHandling | autopilotUsed | autolanding | solver1 | solver2
-	Flags<unsigned char> flagsObj;
-
-	unsigned char battery; // percent of battery capacity
 };
 
 #endif // __DEBUG_DATA__

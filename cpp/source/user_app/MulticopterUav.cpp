@@ -35,7 +35,7 @@ MulticopterUav::~MulticopterUav(void)
     delete connetionTimer;
 }
 
-void MulticopterUav::notifyUserUavEvent(const UserUavEvent* const userUavEvent)
+void MulticopterUav::pushUserUavEvent(const UserUavEvent* const userUavEvent)
 {
     std::unique_ptr<const UserUavEvent> guard(userUavEvent);
     if (nullptr != action)
@@ -70,7 +70,7 @@ void MulticopterUav::notifyReception(const IMessage* const message)
         monitor->notifyUavEvent(new UavEvent(UavEvent::CONNECTION_RECOVERED));
     }
 
-    // TODO memmory leak with SIGNAL messages
+    // TODO memory leak with SIGNAL messages
 
     try
     {

@@ -47,6 +47,11 @@ public:
 		HEADLESS = 3
 	};
 
+	Vect3Df euler; // rotation control
+	float throttle; // throttle
+	unsigned short controllerCommand; // ControllerCommand
+	unsigned char solverMode; // SolverMode
+
 	ControlData(void);
 	ControlData(const unsigned char* src);
 
@@ -80,12 +85,6 @@ public:
 	friend std::ostream& operator << (std::ostream& stream, const ControlData& controlData);
 
 #endif //__MULTICOPTER_USE_STL__
-
-private:
-	Vect3Df euler; // rotation control
-	float throttle; // throttle
-	unsigned short controllerCommand; // ControllerCommand
-	unsigned char solverMode; // SolverMode
 };
 
 #endif // __CONTROL_DATA__

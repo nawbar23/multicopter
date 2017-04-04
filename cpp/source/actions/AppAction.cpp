@@ -13,6 +13,8 @@
 #include "UploadSignalPayload.hpp"
 #include "DownloadSignalPaylod.hpp"
 #include "SensorsLoggerAction.hpp"
+#include "RadioCheckAction.hpp"
+#include "RadioCalibAction.hpp"
 #include "ResetAction.hpp"
 #include "EscCalibAction.hpp"
 
@@ -34,6 +36,7 @@ void AppAction::start(void)
 void AppAction::end(void)
 {
     listener->enablePingTask(false);
+    listener->enableConnectionTimeoutTask(false);
 }
 
 bool AppAction::isActionDone(void) const
@@ -130,13 +133,13 @@ void AppAction::handleUserUavEventAction(const UserUavEventAction& event)
         listener->startAction(new SensorsLoggerAction(listener));
         break;
 
-//    case RADIO_CHECK:
-//        listener->startAction(new RadioCheckAction(listener));
-//        break;
+    case RADIO_CHECK:
+        listener->startAction(new RadioCheckAction(listener));
+        break;
 
-//    case RADIO_CALIB:
-//        listener->startAction(new RadioCalibAction(listener));
-//        break;
+    case RADIO_CALIB:
+        listener->startAction(new RadioCalibAction(listener));
+        break;
 
     case ESC_CALIB:
         listener->startAction(new EscCalibAction(listener));

@@ -80,6 +80,7 @@ void FlightAction::handleUserEvent(const UserUavEvent& event)
         if (UserUavEvent::BREAK_FLIGHT_LOOP == event.getType())
         {
             listener->enablePingTask(false);
+            listener->enableConnectionTimeoutTask(false);
             state = BREAKING;
         }
         else

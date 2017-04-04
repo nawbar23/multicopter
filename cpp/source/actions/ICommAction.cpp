@@ -139,13 +139,14 @@ void ICommAction::handleTimeout(void)
 void ICommAction::sendSignal(const Command command, const Parameter parameter, const unsigned timeout)
 {
     sentSignal = SignalData(command, parameter);
-    monitor->trace("Sendign signal: (" + sentSignal.toString() + ") with timeout: " + std::to_string(timeout) + " ms");
     startSignalTimeout(command, timeout);
     listener->send(sentSignal);
 }
 
 void ICommAction::startSignalTimeout(const Command expectedCommand, const unsigned timeout)
 {
+    monitor->trace("Starting signal reception " + SignalData::toString(expectedCommand) +
+                   " with timeout: " + std::to_string(timeout) + " ms");
     expectedSignalCommand = expectedCommand;
     wasSignalReceptionProcedure = true;
     startSignalTimeoutTimer(timeout);

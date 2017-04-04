@@ -34,6 +34,10 @@ public:
         BREAK_SENSORS_LOGGER,
         ESC_CALIB_DONE,
         ESC_CALIB_ABORT,
+        RADIO_CHECK_DONE,
+        RADIO_CALIBRATION_BREAK,
+        RADIO_CALIBRATION_DONE,
+        RADIO_CALIBRATION_SKIP
     };
 
     const Type type;

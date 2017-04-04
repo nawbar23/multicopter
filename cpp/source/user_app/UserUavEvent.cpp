@@ -33,6 +33,10 @@ std::string UserUavEvent::toString(void) const
     case BREAK_SENSORS_LOGGER: return "BREAK_SENSORS_LOGGER";
     case ESC_CALIB_DONE: return "ESC_CALIB_DONE";
     case ESC_CALIB_ABORT: return "ESC_CALIB_ABORT";
+    case RADIO_CHECK_DONE: return "RADIO_CHECK_DONE";
+    case RADIO_CALIBRATION_BREAK: return "RADIO_CALIBRATION_BREAK";
+    case RADIO_CALIBRATION_DONE: return "RADIO_CALIBRATION_DONE";
+    case RADIO_CALIBRATION_SKIP: return "RADIO_CHECK_DONE";
     default:
         __RL_EXCEPTION__("UserUavEvent::toString:Unexpected event type");
     }

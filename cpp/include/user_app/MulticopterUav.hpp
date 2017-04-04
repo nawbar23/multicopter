@@ -35,13 +35,22 @@ public:
     ~MulticopterUav(void);
 
     /**
-     * Sends event tu UAV thread and deletes its pointer. This is the main
-     * way of communication with UAV thread.
+     * Sends event to ongoing UAV action. This is the main
+     * communication pipeline, every command allowed and needed
+     * will be handled by calling this method. If unexpected event
+     * will be pushed, communication will be broken and UavEvent::ERROR_MESSAGE
+     * will be emmited by IMulticopterUav interface.
+     * Event should be dynamicaly allocated and will be deleted
+     * after processing.
+     * Calling this method is thread safe.
      */
-    void notifyUserUavEvent(const UserUavEvent* const userUavEvent);
+    void pushUserUavEvent(const UserUavEvent* const userUavEvent);
 
     /**
-     * getState
+     * Returns state of communication with UAV. Also this is state
+     * of UAV processing loop. Evaluation of allowed UserUavEvent
+     * should be done by checking ongoing state.
+     * Calling this method is thread safe.
      */
     ICommAction::Type getState(void) const;
 

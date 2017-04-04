@@ -13,6 +13,7 @@ SensorsLoggerAction::SensorsLoggerAction(Listener* const _listener):
 void SensorsLoggerAction::start(void)
 {
     monitor->trace("Sensors looger initialization procedure started");
+    listener->enableConnectionTimeoutTask(true);
     state = INITIAL_COMMAND;
     sendSignal(SignalData::SENSORS_LOGGER, SignalData::START);
 }
@@ -112,6 +113,7 @@ void SensorsLoggerAction::handleUserEvent(const UserUavEvent& event)
     if (LOGGING == state && UserUavEvent::BREAK_SENSORS_LOGGER == event.getType())
     {
         state = BREAKING;
+        listener->enableConnectionTimeoutTask(false);
         sendSignal(SignalData::SENSORS_LOGGER, SignalData::BREAK);
     }
     else
