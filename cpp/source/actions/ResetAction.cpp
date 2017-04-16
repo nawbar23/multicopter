@@ -49,7 +49,7 @@ void ResetAction::handleSignalReception(const Parameter parameter)
         switch (parameter)
         {
         case SignalData::ACK:
-            monitor->trace("Board reset  procedure started");
+            monitor->trace("Board reset procedure started");
             state = IDLE;
             listener->startAction(new IdleAction(listener));
             listener->disconnectInterface();

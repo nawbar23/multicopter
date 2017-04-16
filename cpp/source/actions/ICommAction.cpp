@@ -2,6 +2,8 @@
 
 #include "Exception.hpp"
 
+#include <memory>
+
 ICommAction::Listener::~Listener(void)
 {
 }
@@ -28,11 +30,22 @@ void ICommAction::baseHandleReception(const IMessage& message)
     // filter any SignalData to propper reception handler
     if (IMessage::SIGNAL_DATA == message.getMessageType())
     {
+        // signal data will not be emmited as UavEvent so it must be destructed
+        std::unique_ptr<const IMessage> guard(&message);
         handleReception(reinterpret_cast<const SignalData&>(message));
     }
     else
     {
-        handleReception(message);
+        try
+        {
+            handleReception(message);
+        }
+        catch (Exception e)
+        {
+            // TODO fix this, shared_ptr(global var) is not an option
+            delete &message;
+            throw e;
+        }
     }
 }
 

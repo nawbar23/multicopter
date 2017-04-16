@@ -18,8 +18,7 @@ MulticopterUav::MulticopterUav(IMulticopterMonitor* const _monitor,
     controlFreq(_controlFreq),
     connectionTimeoutFreq(1 / _connectionTimeout)
 {
-    action = new IdleAction(this);
-    garbageAction = nullptr;
+    action = std::make_shared<IdleAction>(this);
 
     pingTimer = monitor->createTimer(std::bind(&MulticopterUav::pingTimerHandler, this));
     connetionTimer = monitor->createTimer(std::bind(&MulticopterUav::connectionTimerHandler, this));
@@ -29,24 +28,19 @@ MulticopterUav::MulticopterUav(IMulticopterMonitor* const _monitor,
 
 MulticopterUav::~MulticopterUav(void)
 {
-    delete action;
-    delete garbageAction;
     delete pingTimer;
     delete connetionTimer;
 }
 
 void MulticopterUav::pushUserUavEvent(const UserUavEvent* const userUavEvent)
 {
-    std::unique_ptr<const UserUavEvent> guard(userUavEvent);
-    if (nullptr != action)
-    {
-        monitor->trace("Handling user event: " + userUavEvent->toString() + " at: " + action->getName());
-        action->handleUserEvent(*userUavEvent);
-    }
-    else
-    {
-        __RL_EXCEPTION__("MulticopterUav::notifyUserUavEvent:action null, unknown error");
-    }
+    pushUserUavEvent(std::unique_ptr<const UserUavEvent>(userUavEvent));
+}
+
+void MulticopterUav::pushUserUavEvent(std::unique_ptr<const UserUavEvent> userUavEvent)
+{
+    monitor->trace("Handling user event: " + userUavEvent->toString() + " at: " + action->getName());
+    notifyUserUavEvent(action, userUavEvent.get());
 }
 
 ICommAction::Type MulticopterUav::getState(void) const
@@ -61,8 +55,18 @@ ICommAction::Type MulticopterUav::getState(void) const
     }
 }
 
-void MulticopterUav::notifyReception(const IMessage* const message)
+void MulticopterUav::notifyUserUavEvent(std::shared_ptr<ICommAction> actLock,
+                                        const UserUavEvent* const userUavEvent)
 {
+    actLock->handleUserEvent(*userUavEvent);
+}
+
+void MulticopterUav::notifyReception(std::shared_ptr<ICommAction> actLock,
+                                     const IMessage* const message)
+{
+    //monitor->trace("HandleReception with " + actLock->getName() +
+    //               " msg: " + message->getMessageName());
+
     receptionFeed = true;
     if (connectionLost)
     {
@@ -70,13 +74,9 @@ void MulticopterUav::notifyReception(const IMessage* const message)
         monitor->notifyUavEvent(new UavEvent(UavEvent::CONNECTION_RECOVERED));
     }
 
-    // TODO memory leak with SIGNAL messages
-
     try
     {
-//        monitor->trace("HandleReception with " + action->getName() +
-//                       " msg: " + message->getMessageName());
-        action->baseHandleReception(*message);
+        actLock->baseHandleReception(*message);
     }
     catch (Exception e)
     {
@@ -90,8 +90,8 @@ void MulticopterUav::handleError(const std::string& message)
     enablePingTask(false);
     enableConnectionTimeoutTask(false);
     interface->disconnect();
-    delete action;
-    action = new IdleAction(this);
+    std::shared_ptr<ICommAction> newAct = std::make_shared<IdleAction>(this);
+    action.swap(newAct);
     monitor->notifyUavEvent(new UavEventMessage(UavEventMessage::ERROR, message));
 }
 
@@ -153,15 +153,9 @@ void MulticopterUav::onDataReceived(const unsigned char* data, const unsigned da
         receivedPreamble = dispatcher.putChar(data[i]);
         if (IMessage::EMPTY != receivedPreamble)
         {
-            notifyReception(dispatcher.retriveMessage(
+            notifyReception(action, dispatcher.retriveMessage(
                                 receivedPreamble, action->getExpectedControlMessageType()));
         }
-    }
-    // this is absolutely safe place to delete previous action
-    if (nullptr != garbageAction)
-    {
-        delete garbageAction;
-        garbageAction = nullptr;
     }
 }
 
@@ -177,17 +171,14 @@ void MulticopterUav::startAction(ICommAction* newAction, bool immediateStart)
     if (false == action->isActionDone())
     {
         std::string message = "Previous action (" + action->getName() +
-                ") not done, when performing: " + ICommAction::toString(newAction->getType()) + ".";
+                ") not done, when performing: " + newAction->getName() + ".";
         __RL_EXCEPTION__(message.c_str());
     }
 
     action->end();
 
-    std::swap(action, newAction);
-    garbageAction = newAction;
-
-    // here is some possibility that message will be received before action start
-    // because of this issue, action has to be ready for reception form construction moment
+    std::shared_ptr<ICommAction> newActionShared(newAction);
+    action.swap(newActionShared);
 
     if (immediateStart)
     {

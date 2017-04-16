@@ -11,17 +11,38 @@
 #include "UavEvent.hpp"
 #include "ControlData.hpp"
 
+#include <string>
+#include <functional>
+#include <memory>
+
 class IMulticopterMonitor
 {
 public:  
     virtual ~IMulticopterMonitor();
 
-    virtual void notifyUavEvent(const UavEvent* const event) = 0;
+    /**
+     * notifyUavEvent
+     */
+    void notifyUavEvent(const UavEvent* const event);
 
+    /**
+     * notifyUavEvent
+     */
+    virtual void notifyUavEvent(std::unique_ptr<const UavEvent> event) = 0;
+
+    /**
+     * getControlDataToSend
+     */
     virtual ControlData getControlDataToSend(void) = 0;
 
-    virtual IAppTimer* createTimer(std::function<void (void)> exec) = 0;
+    /**
+     * createTimer
+     */
+    virtual IAppTimer* createTimer(std::function<void(void)> exec) = 0;
 
+    /**
+     * trace
+     */
     virtual void trace(const std::string& trace) = 0;
 };
 

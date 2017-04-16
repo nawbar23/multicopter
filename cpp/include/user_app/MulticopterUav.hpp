@@ -47,6 +47,11 @@ public:
     void pushUserUavEvent(const UserUavEvent* const userUavEvent);
 
     /**
+     * Memory safe implementation for raw pointer argument pushUserUavEvent method.
+     */
+    void pushUserUavEvent(std::unique_ptr<const UserUavEvent> userUavEvent);
+
+    /**
      * Returns state of communication with UAV. Also this is state
      * of UAV processing loop. Evaluation of allowed UserUavEvent
      * should be done by checking ongoing state.
@@ -62,8 +67,7 @@ private:
     IAppCommInterface* interface;
 
     // preformed UAV action
-    ICommAction* action;
-    ICommAction* garbageAction;
+    std::shared_ptr<ICommAction> action;
 
     // dispatcher for Multicopter Comm Protocol
     CommDispatcher dispatcher;
@@ -84,7 +88,12 @@ private:
 
     unsigned char messageBuildingBuffer[IMessage::MAX_DATA_SIZE];
 
-    void notifyReception(const IMessage* const message);
+    // notify methods, can be called from another thread so action
+    // has to be locked under shared pointer
+    void notifyUserUavEvent(std::shared_ptr<ICommAction> actLock,
+                            const UserUavEvent* const userUavEvent);
+    void notifyReception(std::shared_ptr<ICommAction> actLock,
+                         const IMessage* const message);
 
     void handleError(const std::string& message);
 
