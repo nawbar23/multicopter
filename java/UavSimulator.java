@@ -323,6 +323,7 @@ public class UavSimulator implements CommInterface.CommInterfaceListener,
                                 System.out.println("Stop command received, leaving flight loop");
                                 send(new SignalData(SignalData.Command.FLIGHT_LOOP, SignalData.Parameter.BREAK_ACK).getMessage());
                                 state = State.APP_LOOP;
+                                debugDataToSend.setControllerState(DebugData.ControllerState.APPLICATION_LOOP);
                             }
                     }
                 }
@@ -542,6 +543,7 @@ public class UavSimulator implements CommInterface.CommInterfaceListener,
         result.setLongitude(19.940f + getRandN() / 1000.0f);
         result.setRelativeAltitude(getRandN() * 30.0f);
         result.setVLoc(getRandN() * 2.0f);
+        result.setBattery((byte)89);
         result.setControllerState(DebugData.ControllerState.APPLICATION_LOOP);
         result.setFLagState(DebugData.FlagId.GPS_FIX, true);
         result.setFLagState(DebugData.FlagId.GPS_FIX_3D, true);
