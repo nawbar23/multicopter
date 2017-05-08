@@ -3,7 +3,7 @@ package com.multicopter.java;
 import java.io.IOException;
 
 /**
- * Created by ebarnaw on 2016-11-02.
+ * Created by Bartosz Nawrot on 2016-11-02.
  */
 
 public abstract class CommInterface {

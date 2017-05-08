@@ -4,7 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Created by nbar on 2016-08-30.
+ * Created by Bartosz Nawrot on 2016-08-30.
  * Abstract class for all synchronous communication tasks.
  * Controlled by start and stop methods, dynamically responds for frequency change.
  */

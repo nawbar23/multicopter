@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by ebarnaw on 2016-10-14.
+ * Created by Bartosz Nawrot on 2016-10-14.
  */
 public class CalibrationSettings implements SignalPayloadData {
 

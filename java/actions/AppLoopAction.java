@@ -7,7 +7,7 @@ import com.multicopter.java.events.CommEvent;
 import com.multicopter.java.events.MessageEvent;
 
 /**
- * Created by ebarnaw on 2016-10-14.
+ * Created by Bartosz Nawrot on 2016-10-14.
  */
 public class AppLoopAction extends CommHandlerAction {
 

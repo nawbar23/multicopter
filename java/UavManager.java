@@ -7,7 +7,7 @@ import com.multicopter.java.events.UserEvent;
 import java.util.ArrayList;
 
 /**
- * Created by ebarnaw on 2016-10-14.
+ * Created by Bartosz Nawrot on 2016-10-14.
  * Purpose of this class is to reflect data state of controller board and provides high level API
  * for controlling the connected UAV. By this class user can start application loops and any action
  * over application loop, including flight loop. Also this class posts events from UAV as UavEvents

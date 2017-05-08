@@ -10,7 +10,7 @@ import com.multicopter.java.events.MessageEvent;
 import com.multicopter.java.events.SignalPayloadEvent;
 
 /**
- * Created by ebarnaw on 2016-10-22.
+ * Created by Bartosz Nawrot on 2016-10-22.
  */
 
 public class CalibrateAccelAction extends CommHandlerAction {

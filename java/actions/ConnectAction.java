@@ -13,7 +13,7 @@ import java.util.TimerTask;
 import static com.multicopter.java.actions.CommHandlerAction.ActionType.CONNECT;
 
 /**
- * Created by ebarnaw on 2016-10-13.
+ * Created by Bartosz Nawrot on 2016-10-13.
  */
 public class ConnectAction extends CommHandlerAction {
 

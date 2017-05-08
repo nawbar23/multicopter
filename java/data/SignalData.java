@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Created by ebarnaw on 2016-10-13.
+ * Created by Bartosz Nawrot on 2016-10-13.
  */
 public class SignalData {
     private int commandValue;

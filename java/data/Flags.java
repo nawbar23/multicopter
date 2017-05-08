@@ -1,7 +1,7 @@
 package com.multicopter.java.data;
 
 /**
- * Created by nbar on 2016-09-02.
+ * Created by Bartosz Nawrot on 2016-09-02.
  */
 public class Flags {
 

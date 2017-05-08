@@ -10,7 +10,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by ebarnaw on 2017-01-03.
+ * Created by Bartosz Nawrot on 2017-01-03.
  */
 public class UavSimulator implements CommInterface.CommInterfaceListener,
         CommDispatcher.CommDispatcherListener {

@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Created by nbar on 2016-08-19.
+ * Created by Bartosz Nawrot on 2016-08-19.
  * Main control message, it is send to controller synchronous with frequency of 20Hz
  * Contains basic control parameters:
  * - euler angles (roll, pitch, yaw) - desired rotation of UAV [rad]

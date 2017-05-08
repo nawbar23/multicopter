@@ -1,7 +1,7 @@
 package com.multicopter.java;
 
 /**
- * Created by ebarnaw on 2016-10-14.
+ * Created by Bartosz Nawrot on 2016-10-14.
  * This class contains events types that can be posted by UavManager.
  */
 public class UavEvent {

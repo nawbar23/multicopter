@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Created by nbar on 2016-08-22.
+ * Created by Bartosz Nawrot on 2016-08-22.
  * Autopilot data used to control drone in autopilot mode.
  * This data is sent to drone when target is changed and send back from drone as ACK.
  * Data:

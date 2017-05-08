@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Created by nbar on 2016-08-22.
+ * Created by Bartosz Nawrot on 2016-08-22.
  * Container tha stores most important telemetry data from drone:
  * - euler angles - rotation of drone
  * - position (lat, lon, alt), altitude is relative to start

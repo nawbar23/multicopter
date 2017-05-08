@@ -12,7 +12,7 @@ import com.multicopter.java.events.SignalPayloadEvent;
 import com.multicopter.java.events.UserEvent;
 
 /**
- * Created by ebarnaw on 2016-10-14.
+ * Created by Bartosz Nawrot on 2016-10-14.
  */
 public class FlightLoopAction extends CommHandlerAction {
 

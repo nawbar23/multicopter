@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 /**
- * Created by ebarnaw on 2016-10-13.
+ * Created by Bartosz Nawrot on 2016-10-13.
  */
 public class CommMessage {
     public static final int PREAMBLE_SIZE = 4;

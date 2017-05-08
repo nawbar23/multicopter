@@ -10,7 +10,7 @@ import java.util.Arrays;
 import static com.multicopter.java.data.ControlSettings.StickMovementMode.COPTER;
 
 /**
- * Created by ebarnaw on 2016-10-14.
+ * Created by Bartosz Nawrot on 2016-10-14.
  */
 public class ControlSettings implements SignalPayloadData {
 
