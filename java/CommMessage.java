@@ -100,7 +100,7 @@ public class CommMessage {
     public static int getPayloadSizeByType(MessageType type){
         switch (type) {
             case CONTROL:
-                return 32;
+                return 48;
             case SIGNAL:
                 return 8;
             case AUTOPILOT:

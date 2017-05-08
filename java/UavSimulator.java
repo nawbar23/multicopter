@@ -34,6 +34,8 @@ public class UavSimulator implements CommInterface.CommInterfaceListener,
     private int uploadFails;
     private int uploadRouteFails;
 
+    private float baseAbsoluteAltitude = getRandN() * -220.0f;
+
     private enum State {
         IDLE,
         CONNECTING_APP_LOOP,
@@ -542,7 +544,10 @@ public class UavSimulator implements CommInterface.CommInterfaceListener,
         result.setLatitude(50.034f + getRandN() / 1000.0f);
         result.setLongitude(19.940f + getRandN() / 1000.0f);
         result.setRelativeAltitude(getRandN() * 30.0f);
-        result.setVLoc(getRandN() * 2.0f);
+        result.setAbsoluteAltitude(baseAbsoluteAltitude + result.getRelativeAltitude());
+        result.setVerticalVelocity(0.0f);
+        result.setUsedThrottle(0.0f);
+        result.setDistanceToBase(0.0f);
         result.setBattery((byte)89);
         result.setControllerState(DebugData.ControllerState.APPLICATION_LOOP);
         result.setFLagState(DebugData.FlagId.GPS_FIX, true);
@@ -589,16 +594,23 @@ public class UavSimulator implements CommInterface.CommInterfaceListener,
                 + (float)Math.sin(1.5 * time) /     260000.0f
                 + getRandN() / 1000000.0f);
 
-        debugDataToSend.setVLoc(debugDataToSend.getVLoc()
-                + (float)Math.sin(0.44 * time) / 120.0f
-                + (float)Math.sin(0.9 * time + getRandN()) / 20.0f
-                + (float)Math.sin(5 * time + getRandN()) / 60.0f
-                + (float)Math.sin(1 * time + 1) / 110.0f);
         debugDataToSend.setRelativeAltitude(debugDataToSend.getRelativeAltitude()
                 + (float)Math.sin(0.74 * time) / 50.0f
                 + (float)Math.sin(0.8 * time + getRandN()) / 10.0f
                 + (float)Math.sin(5 * time + getRandN()) / 70.0f
                 + (float)Math.sin(2 * time + 1) / 110.0f);
+        debugDataToSend.setAbsoluteAltitude(baseAbsoluteAltitude + debugDataToSend.getRelativeAltitude());
+        debugDataToSend.setVerticalVelocity(1.0f);
+
+        debugDataToSend.setVelocity(debugDataToSend.getVelocity()
+                + (float)Math.sin(0.44 * time) / 120.0f
+                + (float)Math.sin(0.9 * time + getRandN()) / 20.0f
+                + (float)Math.sin(5 * time + getRandN()) / 60.0f
+                + (float)Math.sin(1 * time + 1) / 110.0f);
+
+        debugDataToSend.setUsedThrottle(0.0f);
+        debugDataToSend.setDistanceToBase(2.0f);
+
         debugDataLock.unlock();
     }
 

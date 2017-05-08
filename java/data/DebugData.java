@@ -21,9 +21,14 @@ public class DebugData {
     private float roll, pitch, yaw;
 
     private float latitude, longitude;
-    private float relativeAltitude;
+    private float relativeAltitude; // altitude relative to base location
+    private float absoluteAltitude; // altitude above see level
+    private float verticalVelocity;
 
-    private float vLoc;
+    private float velocity; // velocity relative to XY earth plane [m/s]
+
+    private float usedThrottle;
+    private float distanceToBase; // [km]
 
     private ControllerState controllerState;
     private Flags flags;
@@ -41,7 +46,11 @@ public class DebugData {
         this.latitude = debugData.getLatitude();
         this.longitude = debugData.getLongitude();
         this.relativeAltitude = debugData.getRelativeAltitude();
-        this.vLoc = debugData.getVLoc();
+        this.absoluteAltitude = debugData.getAbsoluteAltitude();
+        this.verticalVelocity = debugData.getVerticalVelocity();
+        this.velocity = debugData.getVelocity();
+        this.usedThrottle = debugData.getUsedThrottle();
+        this.distanceToBase = debugData.getDistanceToBase();
         this.controllerState = debugData.getControllerState();
         this.flags = new Flags(8, debugData.getFlags());
         this.battery = debugData.getBattery();
@@ -55,7 +64,12 @@ public class DebugData {
         this.latitude = buffer.getFloat();
         this.longitude = buffer.getFloat();
         this.relativeAltitude = buffer.getFloat();
-        this.vLoc = buffer.getFloat();
+        this.relativeAltitude = buffer.getFloat();
+        this.absoluteAltitude = buffer.getFloat();
+        this.verticalVelocity = buffer.getFloat();
+        this.velocity = buffer.getFloat();
+        this.usedThrottle = buffer.getFloat();
+        this.distanceToBase = buffer.getFloat();
         this.controllerState = ControllerState.getControllerState(buffer.getShort());
         this.flags = new Flags(8, buffer.get());
         this.battery = buffer.get();
@@ -119,12 +133,44 @@ public class DebugData {
         this.relativeAltitude = relativeAltitude;
     }
 
-    public float getVLoc() {
-        return vLoc;
+    public float getAbsoluteAltitude() {
+        return absoluteAltitude;
     }
 
-    public void setVLoc(float vLoc) {
-        this.vLoc = vLoc;
+    public void setAbsoluteAltitude(float absoluteAltitude) {
+        this.absoluteAltitude = absoluteAltitude;
+    }
+
+    public float getVerticalVelocity() {
+        return verticalVelocity;
+    }
+
+    public void setVerticalVelocity(float verticalVelocity) {
+        this.verticalVelocity = verticalVelocity;
+    }
+
+    public float getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(float velocity) {
+        this.velocity = velocity;
+    }
+
+    public float getUsedThrottle() {
+        return usedThrottle;
+    }
+
+    public void setUsedThrottle(float usedThrottle) {
+        this.usedThrottle = usedThrottle;
+    }
+
+    public float getDistanceToBase() {
+        return distanceToBase;
+    }
+
+    public void setDistanceToBase(float distanceToBase) {
+        this.distanceToBase = distanceToBase;
     }
 
     public ControllerState getControllerState() {
@@ -198,7 +244,11 @@ public class DebugData {
         buffer.putFloat(getLatitude());
         buffer.putFloat(getLongitude());
         buffer.putFloat(getRelativeAltitude());
-        buffer.putFloat(getVLoc());
+        buffer.putFloat(getAbsoluteAltitude());
+        buffer.putFloat(getVerticalVelocity());
+        buffer.putFloat(getVelocity());
+        buffer.putFloat(getUsedThrottle());
+        buffer.putFloat(getDistanceToBase());
         buffer.putShort(getControllerState().getValue());
         buffer.put((byte)flags.getFlags());
         buffer.put(battery);
