@@ -34,6 +34,7 @@ public class ControlSettings implements SignalPayloadData {
     private float rollProp, pitchProp, yawProp;
 
     // throttle controller settings
+    private float maxVerticalAutoVelocity;
     private float altPositionProp;
     private float altVelocityProp;
     private float[] pidThrottleAccel; // Vect3Df
@@ -91,6 +92,7 @@ public class ControlSettings implements SignalPayloadData {
         maxYawControlValue = 0.0f;
 
         // throttle controller
+        maxVerticalAutoVelocity = 0.0f;
         altPositionProp = 0.0f;
         altVelocityProp = 0.0f;
         throttleAltRateProp = 0.0f;
@@ -141,6 +143,7 @@ public class ControlSettings implements SignalPayloadData {
         rollProp = buffer.getFloat();
         pitchProp = buffer.getFloat();
         yawProp = buffer.getFloat();
+        maxVerticalAutoVelocity = buffer.getFloat();
         altPositionProp = buffer.getFloat();
         altVelocityProp = buffer.getFloat();
         for (int i = 0; i < pidThrottleAccel.length; i++) {
@@ -191,7 +194,7 @@ public class ControlSettings implements SignalPayloadData {
     }
 
     private int getDataArraySize() {
-        return 168;
+        return 172;
     }
 
     public byte[] serialize() {
@@ -218,6 +221,7 @@ public class ControlSettings implements SignalPayloadData {
         buffer.putFloat(rollProp);
         buffer.putFloat(pitchProp);
         buffer.putFloat(yawProp);
+        buffer.putFloat(maxVerticalAutoVelocity);
         buffer.putFloat(altPositionProp);
         buffer.putFloat(altVelocityProp);
         for (float v : pidThrottleAccel) {
@@ -329,8 +333,6 @@ public class ControlSettings implements SignalPayloadData {
             return COPTER; // TODO throw some exception
         }
     }
-
-
 
     public enum BatteryType
     {
@@ -450,6 +452,10 @@ public class ControlSettings implements SignalPayloadData {
 
     public float getYawProp() {
         return yawProp;
+    }
+
+    public float getMaxVerticalAutoVelocity() {
+        return maxVerticalAutoVelocity;
     }
 
     public float getAltPositionProp() {
@@ -573,6 +579,10 @@ public class ControlSettings implements SignalPayloadData {
 
     public void setYawProp(float yawProp) {
         this.yawProp = yawProp;
+    }
+
+    public void setMaxVerticalAutoVelocity(float maxVerticalAutoVelocity) {
+        this.maxVerticalAutoVelocity = maxVerticalAutoVelocity;
     }
 
     public void setAltPositionProp(float altPositionProp) {
